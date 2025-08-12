@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodWise - Smart Food Recommendations</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>FoodWise</h1>
+            </div>
+            <p class="tagline">Smart food recommendations tailored for you</p>
+        </header>
+
+        <!-- Main Form -->
+        <main class="main-content">
+            <form id="foodForm" class="food-form">
+                <div class="form-grid">
+                    <!-- Personal Info Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Personal Information</h3>
+                        
+                        <div class="input-group">
+                            <label for="weight">Current Weight (kg)</label>
+                            <input type="number" id="weight" name="weight" min="30" max="300" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="height">Height (cm)</label>
+                            <input type="number" id="height" name="height" min="100" max="250" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" min="13" max="100" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Diet & Goals Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-target"></i> Diet & Fitness Goals</h3>
+                        
+                        <div class="input-group">
+                            <label for="dietType">Diet Type</label>
+                            <select id="dietType" name="dietType" required>
+                                <option value="">Select Diet Type</option>
+                                <option value="balanced">Balanced Diet</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
+                                <option value="keto">Ketogenic</option>
+                                <option value="paleo">Paleo</option>
+                                <option value="mediterranean">Mediterranean</option>
+                                <option value="low-carb">Low Carb</option>
+                                <option value="high-protein">High Protein</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="fitnessGoal">Fitness Goal</label>
+                            <select id="fitnessGoal" name="fitnessGoal" required>
+                                <option value="">Select Goal</option>
+                                <option value="weight-loss">Weight Loss</option>
+                                <option value="weight-gain">Weight Gain</option>
+                                <option value="muscle-gain">Muscle Gain</option>
+                                <option value="maintenance">Maintain Weight</option>
+                                <option value="endurance">Build Endurance</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="activityLevel">Activity Level</label>
+                            <select id="activityLevel" name="activityLevel" required>
+                                <option value="">Select Activity Level</option>
+                                <option value="sedentary">Sedentary (little/no exercise)</option>
+                                <option value="light">Light (1-3 days/week)</option>
+                                <option value="moderate">Moderate (3-5 days/week)</option>
+                                <option value="active">Active (6-7 days/week)</option>
+                                <option value="very-active">Very Active (2x/day)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Dietary Requirements Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Dietary Requirements</h3>
+                        
+                        <div class="input-group">
+                            <label for="allergies">Allergies & Intolerances</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="nuts"> Nuts
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="dairy"> Dairy
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="gluten"> Gluten
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="shellfish"> Shellfish
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="eggs"> Eggs
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="soy"> Soy
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="budget">Budget Range (per meal)</label>
+                            <select id="budget" name="budget" required>
+                                <option value="">Select Budget</option>
+                                <option value="low">$5 - $10</option>
+                                <option value="medium">$10 - $20</option>
+                                <option value="high">$20 - $35</option>
+                                <option value="premium">$35+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                        
+                        <div class="input-group">
+                            <button type="button" id="getLocation" class="location-btn">
+                                <i class="fas fa-crosshairs"></i>
+                                Get My Location
+                            </button>
+                            <p id="locationStatus" class="location-status"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-search"></i>
+                    Get Food Recommendations
+                </button>
+            </form>
+        </main>
+
+        <!-- Results Section -->
+        <section id="results" class="results-section" style="display: none;">
+            <h2><i class="fas fa-star"></i> Your Personalized Recommendations</h2>
+            
+            <div class="results-grid">
+                <div class="nutrition-card">
+                    <h3><i class="fas fa-calculator"></i> Daily Nutrition Goals</h3>
+                    <div id="nutritionGoals"></div>
+                </div>
+
+                <div class="recommendations-card">
+                    <h3><i class="fas fa-utensils"></i> Recommended Foods</h3>
+                    <div id="foodRecommendations"></div>
+                </div>
+
+                <div class="locations-card">
+                    <h3><i class="fas fa-map-marker-alt"></i> Nearby Restaurants</h3>
+                    <div id="nearbyLocations"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
