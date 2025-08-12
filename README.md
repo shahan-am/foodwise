@@ -14,6 +14,13 @@ FoodWise is an intelligent food recommendation application that provides persona
 - **Geolocation Integration**: Uses your current location to find nearby restaurants and food stores
 - **Budget-Friendly Options**: Filters locations based on your budget preferences
 - **Diet-Specific Venues**: Recommends restaurants that cater to your specific dietary needs
+- **Google Maps Integration**: Clickable links to view locations and get directions
+
+### 🍽️ Menu Recommendations
+- **Top Dish Suggestions**: Shows 2-3 recommended dishes from each restaurant
+- **Smart Dish Scoring**: Ranks dishes based on your diet, goals, and preferences
+- **Detailed Nutrition Info**: Calories, protein, and health benefits for each dish
+- **Popular Dish Indicators**: Highlights trending and highly-rated menu items
 
 ### 💡 Smart Algorithm
 - **BMR Calculation**: Uses the Mifflin-St Jeor equation for accurate calorie calculations
@@ -33,10 +40,10 @@ Simply open `index.html` in your web browser. No installation required!
 - **Budget**: Choose your preferred spending range per meal
 
 ### 3. Enable Location (Optional)
-Click "Get My Location" to enable location-based restaurant recommendations.
+Click "Get My Location" to enable location-based restaurant recommendations with Google Maps integration.
 
 ### 4. Get Recommendations
-Click "Get Food Recommendations" to receive your personalized nutrition plan and food suggestions.
+Click "Get Food Recommendations" to receive your personalized nutrition plan, food suggestions, and nearby restaurant recommendations with specific dish recommendations.
 
 ## Technology Stack
 
@@ -44,7 +51,7 @@ Click "Get Food Recommendations" to receive your personalized nutrition plan and
 - **Styling**: Custom CSS with gradient backgrounds and modern UI
 - **Icons**: Font Awesome 6.0
 - **Fonts**: Google Fonts (Poppins)
-- **APIs**: Geolocation API for location services
+- **APIs**: Geolocation API, Google Maps integration
 
 ## File Structure
 
@@ -71,10 +78,22 @@ Includes a comprehensive database of foods with:
 - Allergen information
 - Health benefits tags
 
+### Restaurant Menu Database
+Features detailed menus for 8 different restaurant types:
+- **Green Garden Cafe**: Vegetarian/vegan specialties
+- **Protein Palace**: High-protein and keto options
+- **Mediterranean Delights**: Heart-healthy Mediterranean cuisine
+- **Keto Kitchen**: Low-carb ketogenic meals
+- **Fresh Market**: Customizable healthy options
+- **Organic Oasis**: Superfood and organic dishes
+- **Paleo Paradise**: Paleo-friendly meals
+- **Balanced Bites**: Well-rounded nutrition options
+
 ### Location Services
 - Uses browser's Geolocation API
-- Simulates nearby restaurant data (in production, would integrate with Google Places API)
+- Google Maps integration for directions
 - Filters results based on diet preferences and budget
+- Shows top 2-3 recommended dishes per location
 
 ## Browser Compatibility
 
@@ -89,6 +108,14 @@ Includes a comprehensive database of foods with:
 - No personal data is transmitted to external servers
 - All calculations are performed client-side
 
+## Demo Features
+
+The application includes realistic demo data for:
+- 8 different restaurant types with full menus
+- 24+ dishes with detailed nutritional information
+- Smart recommendation algorithms
+- Google Maps integration (opens actual Google Maps)
+
 ## Future Enhancements
 
 - Integration with real restaurant APIs (Google Places, Yelp)
@@ -97,6 +124,7 @@ Includes a comprehensive database of foods with:
 - Social features for sharing meal plans
 - Integration with fitness trackers
 - Nutritional analysis of custom meals
+- User reviews and ratings system
 
 ## Contributing
 
