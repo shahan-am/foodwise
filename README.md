@@ -1,6 +1,15 @@
 # FoodWise - Smart Food Recommendations
 
-FoodWise is an intelligent food recommendation application that provides personalized nutrition advice based on your dietary requirements, fitness goals, budget, and location.
+FoodWise is an intelligent food recommendation application that provides personalized nutrition advice based on your dietary requirements, fitness goals, budget, and location. Now featuring a **dedicated nearby restaurants section** with enhanced functionality!
+
+## 🆕 Latest Updates
+
+### ✨ Major Features Added:
+- **🍽️ Separate Restaurants Section**: Dedicated section for nearby restaurants (moved from main results)
+- **🗺️ Enhanced Geolocation**: Comprehensive error handling and permission management
+- **🎨 Professional UI/UX**: Modern design system with animations and responsive layout
+- **🔧 Robust Error Handling**: Graceful error recovery and detailed user feedback
+- **🧪 Testing Suite**: Comprehensive debugging and testing tools
 
 ## Features
 
@@ -18,11 +27,21 @@ FoodWise is an intelligent food recommendation application that provides persona
 - **Fitness Goal Alignment**: Tailors recommendations for weight loss, weight gain, muscle building, or maintenance
 - **Allergy Considerations**: Filters out foods based on your allergies and intolerances
 
-### 📍 Location-Based Features
-- **Geolocation Integration**: Uses your current location to find nearby restaurants and food stores
-- **Budget-Friendly Options**: Filters locations based on your budget preferences
-- **Diet-Specific Venues**: Recommends restaurants that cater to your specific dietary needs
-- **Google Maps Integration**: Clickable links to view locations and get directions
+### 🍽️ Dedicated Nearby Restaurants Section
+- **Separate Section**: Beautiful standalone section for restaurant recommendations
+- **Enhanced Restaurant Cards**: Professional design with detailed information
+- **Google Maps Integration**: Direct links to view restaurants and get directions
+- **Menu Recommendations**: Top dishes based on your dietary preferences
+- **Restaurant Details**: Ratings, contact info, distance, and price range
+- **Smooth Animations**: Cards animate in with staggered timing
+- **Mobile Optimized**: Responsive design for all screen sizes
+
+### 📍 Enhanced Location-Based Features
+- **Advanced Geolocation**: Comprehensive permission handling and error recovery
+- **Smart Error Messages**: Detailed guidance for location access issues
+- **Fallback Support**: Works even when location access is denied
+- **Real-time Status**: Live updates during location detection
+- **Privacy Assurance**: Clear messaging about location data usage
 
 ### 🍽️ Menu Recommendations
 - **Top Dish Suggestions**: Shows 2-3 recommended dishes from each restaurant
@@ -57,24 +76,53 @@ Simply open `index.html` in your web browser. No installation required!
 Click "Get My Location" to enable location-based restaurant recommendations with Google Maps integration.
 
 ### 5. Get Recommendations
-Click "Get Food Recommendations" to receive your personalized nutrition plan, food suggestions, and nearby restaurant recommendations with specific dish recommendations.
+Click "Get My Food Recommendations" to receive:
+- **Nutrition Goals**: Personalized daily calorie and macro targets
+- **Food Recommendations**: Categorized food suggestions with benefits
+- **Nearby Restaurants**: Dedicated section with detailed restaurant information and menu recommendations
+
+## 🧪 Testing & Development
+
+### Testing Tools Available:
+- **`test.html`**: Comprehensive application testing suite
+- **`debug.html`**: Advanced debugging and diagnostic tools
+- **`minimal-test.html`**: Isolated functionality testing
+- **`js-test.html`**: JavaScript validation and syntax checking
+
+### Development Features:
+- **Fill Test Data**: Quick form filling for development testing
+- **Console Logging**: Detailed step-by-step execution logging
+- **Error Handling**: Comprehensive error recovery and user feedback
+- **Performance Monitoring**: Built-in performance tracking
 
 ## Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Styling**: Custom CSS with gradient backgrounds and modern UI
+- **Styling**: Custom CSS with modern design system and CSS variables
 - **Icons**: Font Awesome 6.0
 - **Fonts**: Google Fonts (Poppins)
-- **APIs**: Geolocation API, Google Maps integration
+- **APIs**: Geolocation API, MediaDevices API, Canvas API
+- **Integration**: Google Maps integration for directions and location viewing
 
 ## File Structure
 
 ```
 FoodWise/
-├── index.html          # Main HTML structure
-├── styles.css          # CSS styling and responsive design
-├── script.js           # JavaScript functionality and logic
-└── README.md          # Documentation
+├── index.html                    # Main HTML structure
+├── styles.css                    # Core CSS styling and responsive design
+├── real-data-styles.css          # Additional styling for real data features
+├── script.js                     # Main JavaScript functionality and logic
+├── config.js                     # Configuration settings
+├── location-service.js           # Enhanced location services
+├── real-data-integration.js      # Real data integration capabilities
+├── README.md                     # Documentation (this file)
+├── TECHNICAL_DOCUMENTATION.md    # Detailed technical documentation
+├── AWS_ARCHITECTURE.md           # AWS deployment architecture
+├── REAL_DATA_SETUP.md           # Real data integration setup guide
+├── test.html                     # Comprehensive testing suite
+├── debug.html                    # Advanced debugging tools
+├── minimal-test.html             # Minimal functionality testing
+└── js-test.html                  # JavaScript validation tools
 ```
 
 ## Key Features Explained
@@ -93,7 +141,7 @@ Includes a comprehensive database of foods with:
 - Health benefits tags
 
 ### Restaurant Menu Database
-Features detailed menus for 8 different restaurant types:
+Features detailed menus for 8+ different restaurant types:
 - **Green Garden Cafe**: Vegetarian/vegan specialties
 - **Protein Palace**: High-protein and keto options
 - **Mediterranean Delights**: Heart-healthy Mediterranean cuisine
@@ -103,11 +151,12 @@ Features detailed menus for 8 different restaurant types:
 - **Paleo Paradise**: Paleo-friendly meals
 - **Balanced Bites**: Well-rounded nutrition options
 
-### Location Services
-- Uses browser's Geolocation API
-- Google Maps integration for directions
+### Enhanced Location Services
+- Uses browser's Geolocation API with comprehensive error handling
+- Google Maps integration for directions and location viewing
 - Filters results based on diet preferences and budget
 - Shows top 2-3 recommended dishes per location
+- Graceful fallback when location access is denied
 
 ## Browser Compatibility
 
@@ -121,14 +170,36 @@ Features detailed menus for 8 different restaurant types:
 - Location data is only used locally and not stored
 - No personal data is transmitted to external servers
 - All calculations are performed client-side
+- Clear privacy messaging and user consent
 
 ## Demo Features
 
 The application includes realistic demo data for:
-- 8 different restaurant types with full menus
+- 8+ different restaurant types with full menus
 - 24+ dishes with detailed nutritional information
 - Smart recommendation algorithms
 - Google Maps integration (opens actual Google Maps)
+- Comprehensive error handling and user feedback
+
+## 🚀 Recent Improvements
+
+### Performance & Reliability:
+- ✅ Fixed all JavaScript syntax errors
+- ✅ Enhanced error handling and recovery
+- ✅ Improved initialization robustness
+- ✅ Better form validation and processing
+
+### User Experience:
+- ✅ Separate restaurants section with enhanced design
+- ✅ Smooth animations and transitions
+- ✅ Better visual hierarchy and spacing
+- ✅ Improved mobile responsiveness
+
+### Developer Experience:
+- ✅ Comprehensive testing suite
+- ✅ Advanced debugging tools
+- ✅ Detailed logging and error reporting
+- ✅ Modular code structure
 
 ## Future Enhancements
 
@@ -139,10 +210,18 @@ The application includes realistic demo data for:
 - Integration with fitness trackers
 - Nutritional analysis of custom meals
 - User reviews and ratings system
+- Real-time menu updates and availability
 
 ## Contributing
 
-This is a demonstration application. For production use, consider:
+This project demonstrates modern web development practices with:
+- Responsive design principles
+- Progressive enhancement
+- Accessibility considerations
+- Performance optimization
+- Error handling best practices
+
+For production use, consider:
 - Adding real restaurant API integration
 - Implementing user authentication
 - Adding a backend for data persistence
@@ -156,3 +235,9 @@ This project is for educational and demonstration purposes.
 ---
 
 **FoodWise** - Making healthy eating decisions easier, one recommendation at a time! 🍎
+
+### 🔗 Repository
+**GitHub**: [https://github.com/shahan-am/foodwise](https://github.com/shahan-am/foodwise)
+
+### 📱 Live Demo
+Open `index.html` in your browser or visit the deployed version for a full experience of the enhanced FoodWise application with the new separate restaurants section!
