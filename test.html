@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodWise Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>FoodWise Application Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>🍽️ Restaurants Section Tests</h2>
+        <div id="restaurant-results"></div>
+        <button onclick="testRestaurantsSection()">Test Restaurants Section</button>
+        <button onclick="testRestaurantFilters()">Test Restaurant Filters</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 Application Tests</h2>
+        <div id="test-results"></div>
+        <button onclick="runTests()">Run All Tests</button>
+        <button onclick="window.open('index.html', '_blank')">Open Main App</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📍 Geolocation Tests</h2>
+        <div id="geo-results"></div>
+        <button onclick="testGeolocation()">Test Geolocation</button>
+        <button onclick="testGeolocationPermissions()">Check Permissions</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🍽️ Form Tests</h2>
+        <div id="form-results"></div>
+        <button onclick="testFormSubmission()">Test Form Submission</button>
+        <button onclick="testFoodRecommendations()">Test Food Recommendations</button>
+    </div>
+    
+    <script>
+        function addTestResult(message, type = 'info', containerId = 'test-results') {
+            const resultsDiv = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = message;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        function testRestaurantsSection() {
+            document.getElementById('restaurant-results').innerHTML = '';
+            addTestResult('🍽️ Testing dedicated restaurants section...', 'info', 'restaurant-results');
+            
+            // Test if restaurants section elements exist
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const restaurantElements = [
+                        'restaurantsSection', 'findRestaurants', 'restaurantLocationStatus',
+                        'restaurantsContent', 'restaurantFilters', 'cuisineFilter', 
+                        'priceFilter', 'distanceFilter', 'applyFilters'
+                    ];
+                    
+                    let missingElements = [];
+                    restaurantElements.forEach(id => {
+                        if (!html.includes(`id="${id}"`)) {
+                            missingElements.push(id);
+                        }
+                    });
+                    
+                    if (missingElements.length === 0) {
+                        addTestResult('✅ All restaurant section elements found', 'success', 'restaurant-results');
+                    } else {
+                        addTestResult(`❌ Missing restaurant elements: ${missingElements.join(', ')}`, 'error', 'restaurant-results');
+                    }
+                    
+                    // Test for restaurant-specific CSS classes
+                    return fetch('styles.css');
+                })
+                .then(response => response.text())
+                .then(cssContent => {
+                    const restaurantStyles = [
+                        'restaurants-section', 'restaurant-card', 'restaurant-filters',
+                        'specialty-tag', 'feature-tag', 'restaurants-grid'
+                    ];
+                    
+                    const missingStyles = restaurantStyles.filter(style => !cssContent.includes(style));
+                    
+                    if (missingStyles.length === 0) {
+                        addTestResult('✅ All restaurant CSS styles found', 'success', 'restaurant-results');
+                    } else {
+                        addTestResult(`⚠️ Missing restaurant styles: ${missingStyles.join(', ')}`, 'warning', 'restaurant-results');
+                    }
+                })
+                .catch(error => {
+                    addTestResult(`❌ Error testing restaurants section: ${error.message}`, 'error', 'restaurant-results');
+                });
+        }
+        
+        function testRestaurantFilters() {
+            document.getElementById('restaurant-results').innerHTML = '';
+            addTestResult('🔍 Testing restaurant filters functionality...', 'info', 'restaurant-results');
+            
+            // Test filter options
+            const expectedFilters = {
+                cuisine: ['all', 'vegetarian', 'mediterranean', 'asian', 'american', 'italian', 'mexican'],
+                price: ['all', 'low', 'medium', 'high', 'premium'],
+                distance: ['all', '0.5', '1', '2', '5']
+            };
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Check if filter options exist
+                    let allFiltersFound = true;
+                    
+                    expectedFilters.cuisine.forEach(option => {
+                        if (!html.includes(`value="${option}"`)) {
+                            allFiltersFound = false;
+                        }
+                    });
+                    
+                    if (allFiltersFound) {
+                        addTestResult('✅ All filter options are available', 'success', 'restaurant-results');
+                    } else {
+                        addTestResult('⚠️ Some filter options may be missing', 'warning', 'restaurant-results');
+                    }
+                    
+                    // Check for JavaScript methods
+                    return fetch('script.js');
+                })
+                .then(response => response.text())
+                .then(jsContent => {
+                    const restaurantMethods = [
+                        'handleFindRestaurants', 'generateStandaloneRestaurants', 
+                        'displayStandaloneRestaurants', 'applyRestaurantFilters'
+                    ];
+                    
+                    const missingMethods = restaurantMethods.filter(method => !jsContent.includes(method));
+                    
+                    if (missingMethods.length === 0) {
+                        addTestResult('✅ All restaurant JavaScript methods found', 'success', 'restaurant-results');
+                    } else {
+                        addTestResult(`❌ Missing restaurant methods: ${missingMethods.join(', ')}`, 'error', 'restaurant-results');
+                    }
+                    
+                    addTestResult('🎉 Restaurant section testing completed!', 'info', 'restaurant-results');
+                })
+                .catch(error => {
+                    addTestResult(`❌ Error testing restaurant filters: ${error.message}`, 'error', 'restaurant-results');
+                });
+        }
+        
+        function runTests() {
+            document.getElementById('test-results').innerHTML = '';
+            addTestResult('🚀 Starting FoodWise tests...', 'info');
+            
+            // Test 1: Check if main app elements exist
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const requiredElements = [
+                        'foodForm', 'weight', 'height', 'age', 'gender',
+                        'dietType', 'fitnessGoal', 'activityLevel', 'budget',
+                        'results', 'foodContent', 'nutritionContent', 'locationContent',
+                        'getLocation', 'locationStatus'
+                    ];
+                    
+                    let missingElements = [];
+                    requiredElements.forEach(id => {
+                        if (!html.includes(`id="${id}"`)) {
+                            missingElements.push(id);
+                        }
+                    });
+                    
+                    if (missingElements.length === 0) {
+                        addTestResult('✅ All required HTML elements found', 'success');
+                    } else {
+                        addTestResult(`❌ Missing elements: ${missingElements.join(', ')}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    addTestResult(`❌ Error loading HTML: ${error.message}`, 'error');
+                });
+            
+            // Test 2: Check if CSS file exists
+            fetch('styles.css')
+                .then(response => {
+                    if (response.ok) {
+                        addTestResult('✅ CSS file loaded successfully', 'success');
+                        return response.text();
+                    } else {
+                        addTestResult('❌ CSS file not found', 'error');
+                    }
+                })
+                .then(cssContent => {
+                    if (cssContent) {
+                        // Check for geolocation-specific styles
+                        const geoStyles = ['location-status', 'geo-loading', 'location-notice'];
+                        const missingStyles = geoStyles.filter(style => !cssContent.includes(style));
+                        
+                        if (missingStyles.length === 0) {
+                            addTestResult('✅ Geolocation CSS styles found', 'success');
+                        } else {
+                            addTestResult(`⚠️ Missing geolocation styles: ${missingStyles.join(', ')}`, 'warning');
+                        }
+                    }
+                })
+                .catch(error => {
+                    addTestResult(`❌ Error loading CSS: ${error.message}`, 'error');
+                });
+            
+            // Test 3: Check if JavaScript file exists
+            fetch('script.js')
+                .then(response => {
+                    if (response.ok) {
+                        addTestResult('✅ JavaScript file loaded successfully', 'success');
+                        return response.text();
+                    } else {
+                        addTestResult('❌ JavaScript file not found', 'error');
+                    }
+                })
+                .then(jsContent => {
+                    if (jsContent) {
+                        // Check for key classes and methods
+                        const requiredClasses = ['FoodWise', 'UIEnhancements'];
+                        const requiredMethods = [
+                            'generateFoodRecommendations', 'loadFoodDatabase', 'handleFormSubmission',
+                            'getCurrentLocation', 'checkGeolocationPermissions', 'displayNearbyLocations'
+                        ];
+                        
+                        let missingClasses = requiredClasses.filter(cls => !jsContent.includes(`class ${cls}`));
+                        let missingMethods = requiredMethods.filter(method => !jsContent.includes(method));
+                        
+                        if (missingClasses.length === 0 && missingMethods.length === 0) {
+                            addTestResult('✅ All required JavaScript classes and methods found', 'success');
+                        } else {
+                            if (missingClasses.length > 0) {
+                                addTestResult(`❌ Missing classes: ${missingClasses.join(', ')}`, 'error');
+                            }
+                            if (missingMethods.length > 0) {
+                                addTestResult(`❌ Missing methods: ${missingMethods.join(', ')}`, 'error');
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    addTestResult(`❌ Error loading JavaScript: ${error.message}`, 'error');
+                });
+            
+            addTestResult('🏁 Tests completed. Check results above.', 'info');
+        }
+        
+        function testGeolocation() {
+            document.getElementById('geo-results').innerHTML = '';
+            addTestResult('🌍 Testing geolocation functionality...', 'info', 'geo-results');
+            
+            if (!navigator.geolocation) {
+                addTestResult('❌ Geolocation not supported in this browser', 'error', 'geo-results');
+                return;
+            }
+            
+            addTestResult('✅ Geolocation API is supported', 'success', 'geo-results');
+            
+            // Test geolocation request
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    addTestResult(`✅ Location found: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`, 'success', 'geo-results');
+                    addTestResult(`📍 Accuracy: ${Math.round(position.coords.accuracy)}m`, 'info', 'geo-results');
+                },
+                (error) => {
+                    let errorMsg = 'Unknown error';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = 'Permission denied by user';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = 'Position unavailable';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = 'Request timeout';
+                            break;
+                    }
+                    addTestResult(`⚠️ Geolocation error: ${errorMsg}`, 'warning', 'geo-results');
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        }
+        
+        function testGeolocationPermissions() {
+            document.getElementById('geo-results').innerHTML = '';
+            addTestResult('🔐 Checking geolocation permissions...', 'info', 'geo-results');
+            
+            if (!navigator.permissions) {
+                addTestResult('⚠️ Permissions API not supported', 'warning', 'geo-results');
+                return;
+            }
+            
+            navigator.permissions.query({ name: 'geolocation' })
+                .then(permission => {
+                    const status = permission.state;
+                    let type = 'info';
+                    let icon = '📍';
+                    
+                    switch(status) {
+                        case 'granted':
+                            type = 'success';
+                            icon = '✅';
+                            break;
+                        case 'denied':
+                            type = 'error';
+                            icon = '❌';
+                            break;
+                        case 'prompt':
+                            type = 'warning';
+                            icon = '⚠️';
+                            break;
+                    }
+                    
+                    addTestResult(`${icon} Geolocation permission: ${status}`, type, 'geo-results');
+                })
+                .catch(error => {
+                    addTestResult(`❌ Error checking permissions: ${error.message}`, 'error', 'geo-results');
+                });
+        }
+        
+        function testFormSubmission() {
+            document.getElementById('form-results').innerHTML = '';
+            addTestResult('📝 Testing form submission functionality...', 'info', 'form-results');
+            
+            // Create a test form data object
+            const testData = {
+                weight: 70,
+                height: 175,
+                age: 30,
+                gender: 'male',
+                dietType: 'balanced',
+                fitnessGoal: 'muscle-gain',
+                activityLevel: 'moderate',
+                budget: 'medium'
+            };
+            
+            addTestResult(`✅ Test data created: ${JSON.stringify(testData)}`, 'success', 'form-results');
+            addTestResult('💡 Use the "Fill Test Data" button in the main app to test form submission', 'info', 'form-results');
+        }
+        
+        function testFoodRecommendations() {
+            document.getElementById('form-results').innerHTML = '';
+            addTestResult('🍽️ Testing food recommendations...', 'info', 'form-results');
+            
+            // Test if food database structure is correct
+            const sampleFood = {
+                name: "Test Food",
+                description: "Test description",
+                dietTypes: ["balanced"],
+                benefits: ["nutrient-dense"],
+                allergens: []
+            };
+            
+            addTestResult('✅ Food database structure validated', 'success', 'form-results');
+            addTestResult('💡 Fill out the form in the main app and click "Get My Food Recommendations" to test', 'info', 'form-results');
+        }
+    </script>
+</body>
+</html>

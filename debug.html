@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodWise Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #results { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 FoodWise Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h2>Basic Tests</h2>
+        <button onclick="testBasicElements()">Test Basic Elements</button>
+        <button onclick="testJavaScriptLoading()">Test JavaScript Loading</button>
+        <button onclick="testFormElements()">Test Form Elements</button>
+        <button onclick="testEventBindings()">Test Event Bindings</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Functionality Tests</h2>
+        <button onclick="testFormSubmission()">Test Form Submission</button>
+        <button onclick="testGeolocation()">Test Geolocation</button>
+        <button onclick="testResultsDisplay()">Test Results Display</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Quick Actions</h2>
+        <button onclick="window.open('index.html', '_blank')">Open Main App</button>
+        <button onclick="fillTestDataAndSubmit()">Fill Test Data & Submit</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `debug-section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function testBasicElements() {
+            log('🧪 Testing basic HTML elements...', 'info');
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const requiredElements = [
+                        'foodForm', 'weight', 'height', 'age', 'gender',
+                        'dietType', 'fitnessGoal', 'activityLevel', 'budget',
+                        'results', 'foodContent', 'nutritionContent', 'locationContent',
+                        'nearbyRestaurantsSection'
+                    ];
+                    
+                    let missing = [];
+                    requiredElements.forEach(id => {
+                        if (!html.includes(`id="${id}"`)) {
+                            missing.push(id);
+                        }
+                    });
+                    
+                    if (missing.length === 0) {
+                        log('✅ All required HTML elements found', 'success');
+                    } else {
+                        log(`❌ Missing elements: ${missing.join(', ')}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    log(`❌ Error loading HTML: ${error.message}`, 'error');
+                });
+        }
+        
+        function testJavaScriptLoading() {
+            log('🧪 Testing JavaScript loading...', 'info');
+            
+            const script = document.createElement('script');
+            script.src = 'script.js';
+            script.onload = function() {
+                log('✅ JavaScript loaded successfully', 'success');
+                
+                setTimeout(() => {
+                    if (typeof FoodWise !== 'undefined') {
+                        log('✅ FoodWise class available', 'success');
+                    } else {
+                        log('❌ FoodWise class not found', 'error');
+                    }
+                    
+                    if (typeof UIEnhancements !== 'undefined') {
+                        log('✅ UIEnhancements class available', 'success');
+                    } else {
+                        log('❌ UIEnhancements class not found', 'error');
+                    }
+                }, 500);
+            };
+            
+            script.onerror = function() {
+                log('❌ Failed to load JavaScript', 'error');
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        function testFormElements() {
+            log('🧪 Testing form elements in main app...', 'info');
+            
+            // Open main app in iframe to test
+            const iframe = document.createElement('iframe');
+            iframe.src = 'index.html';
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+            
+            iframe.onload = function() {
+                try {
+                    const iframeDoc = iframe.contentDocument;
+                    const form = iframeDoc.getElementById('foodForm');
+                    
+                    if (form) {
+                        log('✅ Main form found', 'success');
+                        
+                        const inputs = form.querySelectorAll('input, select');
+                        log(`✅ Found ${inputs.length} form inputs`, 'success');
+                        
+                        // Test specific elements
+                        const testElements = ['weight', 'height', 'age', 'gender', 'dietType'];
+                        testElements.forEach(id => {
+                            const element = iframeDoc.getElementById(id);
+                            if (element) {
+                                log(`✅ ${id} element found`, 'success');
+                            } else {
+                                log(`❌ ${id} element missing`, 'error');
+                            }
+                        });
+                    } else {
+                        log('❌ Main form not found', 'error');
+                    }
+                } catch (error) {
+                    log(`❌ Error testing form elements: ${error.message}`, 'error');
+                }
+                
+                document.body.removeChild(iframe);
+            };
+        }
+        
+        function testEventBindings() {
+            log('🧪 Testing event bindings...', 'info');
+            log('ℹ️ This requires manual testing in the main app', 'info');
+        }
+        
+        function testFormSubmission() {
+            log('🧪 Testing form submission...', 'info');
+            log('ℹ️ Use "Fill Test Data & Submit" button to test', 'info');
+        }
+        
+        function testGeolocation() {
+            log('🧪 Testing geolocation...', 'info');
+            
+            if (!navigator.geolocation) {
+                log('❌ Geolocation not supported', 'error');
+                return;
+            }
+            
+            log('✅ Geolocation API supported', 'success');
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    log(`✅ Location found: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`, 'success');
+                },
+                (error) => {
+                    log(`⚠️ Geolocation error: ${error.message}`, 'error');
+                },
+                { timeout: 5000 }
+            );
+        }
+        
+        function testResultsDisplay() {
+            log('🧪 Testing results display...', 'info');
+            log('ℹ️ This requires form submission to test', 'info');
+        }
+        
+        function fillTestDataAndSubmit() {
+            log('🧪 Opening main app with test data...', 'info');
+            
+            // Open main app and try to fill test data
+            const newWindow = window.open('index.html', '_blank');
+            
+            setTimeout(() => {
+                try {
+                    // Try to access the new window and fill test data
+                    if (newWindow && newWindow.foodWise) {
+                        newWindow.foodWise.fillTestData();
+                        log('✅ Test data filled in new window', 'success');
+                        
+                        setTimeout(() => {
+                            newWindow.foodWise.handleFormSubmission();
+                            log('✅ Form submitted in new window', 'success');
+                        }, 1000);
+                    } else {
+                        log('ℹ️ Please manually click "Fill Test Data" and submit in the new window', 'info');
+                    }
+                } catch (error) {
+                    log('ℹ️ Please manually test in the new window', 'info');
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

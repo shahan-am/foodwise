@@ -3,64 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodWise - Smart Food Recommendations</title>
+    <title>FoodWise - AI-Powered Nutrition & Food Recommendations</title>
+    <meta name="description" content="Get personalized food recommendations based on AI analysis of your photo. Smart nutrition planning with location-based restaurant suggestions.">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Meta Tags -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍎</text></svg>">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <i class="fas fa-utensils"></i>
-                <h1>FoodWise</h1>
-            </div>
-            <p class="tagline">Smart food recommendations tailored for you</p>
-        </header>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-apple-alt"></i>
+                </div>
+                <div>
+                    <h1>FoodWise</h1>
+                    <p class="tagline">AI-Powered Nutrition Intelligence</p>
+                </div>
+            </a>
+        </div>
+    </header>
 
-        <!-- Main Form -->
-        <main class="main-content">
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <h1 class="hero-title">Smart Food Recommendations</h1>
+                <p class="hero-subtitle">
+                    Upload your photo and let AI analyze your body composition to provide personalized nutrition recommendations, 
+                    nearby restaurant suggestions, and custom meal plans tailored just for you.
+                </p>
+            </section>
+
+            <!-- Main Form -->
             <form id="foodForm" class="food-form">
-                <div class="form-grid">
-                    <!-- Personal Info Section -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-user"></i> Personal Information</h3>
+                <!-- AI Body Analysis Section -->
+                <section class="form-section">
+                    <h3><i class="fas fa-brain"></i> AI Body Analysis & Auto-Fill</h3>
+                    
+                    <div class="input-group">
+                        <label for="bodyImage">Upload Your Photo for Automatic Form Filling</label>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="fas fa-user-circle"></i>
+                                <p>Upload your photo to auto-fill your profile</p>
+                                <p class="upload-subtitle">AI will detect your height, weight, age, and gender</p>
+                                <div class="upload-options">
+                                    <button type="button" class="upload-option-btn" id="browseFiles">
+                                        <i class="fas fa-folder-open"></i>
+                                        Browse Photos
+                                    </button>
+                                    <button type="button" class="upload-option-btn" id="captureCamera">
+                                        <i class="fas fa-camera"></i>
+                                        Take Photo
+                                    </button>
+                                </div>
+                                <input type="file" id="bodyImage" name="bodyImage" accept="image/*" hidden>
+                                <input type="file" id="cameraCapture" name="cameraCapture" accept="image/*" capture="user" hidden>
+                            </div>
+                            <div class="upload-preview" id="uploadPreview" style="display: none;">
+                                <img id="previewImage" alt="Uploaded photo preview">
+                                <div class="preview-overlay">
+                                    <button type="button" class="preview-action-btn" id="retakePhoto" style="display: none;">
+                                        <i class="fas fa-redo"></i>
+                                        Retake
+                                    </button>
+                                    <button type="button" class="remove-btn" id="removeUpload" aria-label="Remove photo">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Camera Modal -->
+                        <div class="camera-modal" id="cameraModal" style="display: none;" role="dialog" aria-labelledby="cameraModalTitle">
+                            <div class="camera-modal-content">
+                                <div class="camera-header">
+                                    <h4 id="cameraModalTitle"><i class="fas fa-camera"></i> Capture for Body Analysis</h4>
+                                    <button type="button" class="close-camera" id="closeCameraModal" aria-label="Close camera">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="camera-container">
+                                    <video id="cameraStream" autoplay playsinline aria-label="Camera preview"></video>
+                                    <canvas id="captureCanvas" style="display: none;"></canvas>
+                                    <div class="camera-overlay">
+                                        <div class="camera-guide">
+                                            <div class="body-guide-frame"></div>
+                                            <p>Position yourself in the frame</p>
+                                            <p class="guide-tip">Full body or upper body shots work best</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="camera-controls">
+                                    <button type="button" class="camera-control-btn" id="switchCamera">
+                                        <i class="fas fa-sync-alt"></i>
+                                        Switch Camera
+                                    </button>
+                                    <button type="button" class="capture-btn" id="capturePhoto">
+                                        <i class="fas fa-camera"></i>
+                                        Capture Photo
+                                    </button>
+                                    <button type="button" class="camera-control-btn" id="cancelCapture">
+                                        <i class="fas fa-times"></i>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Analysis Results -->
+                        <div class="ai-analysis" id="aiAnalysis" style="display: none;">
+                            <div class="analysis-header">
+                                <i class="fas fa-brain"></i>
+                                <span>AI Body Analysis Results</span>
+                                <div class="loading-spinner" id="analysisSpinner" style="display: none;"></div>
+                            </div>
+                            <div class="analysis-results" id="analysisResults"></div>
+                            <div class="auto-fill-status" id="autoFillStatus" style="display: none;">
+                                <div class="status-message">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Form automatically filled based on AI analysis!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Features Info -->
+                    <div class="ai-features">
+                        <h4><i class="fas fa-robot"></i> What AI Will Auto-Fill:</h4>
+                        <div class="feature-grid">
+                            <div class="feature-item">
+                                <i class="fas fa-ruler-vertical"></i>
+                                <span>Height Detection</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-weight"></i>
+                                <span>Weight Estimation</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-birthday-cake"></i>
+                                <span>Age Estimation</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-venus-mars"></i>
+                                <span>Gender Detection</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-dumbbell"></i>
+                                <span>Body Type Analysis</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-heartbeat"></i>
+                                <span>Fitness Level</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Debug button for testing -->
+                        <div style="margin-top: var(--space-6); text-align: center;">
+                            <button type="button" id="testAutoFillBtn" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-bug"></i>
+                                Test Auto-Fill (Debug)
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Personal Information Section -->
+                <section class="form-section">
+                    <h3><i class="fas fa-user"></i> Personal Information</h3>
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="weight">Current Weight (kg) <i class="fas fa-info-circle" data-tooltip="Your current weight helps calculate accurate calorie needs"></i></label>
+                            <input type="number" id="weight" name="weight" class="input" min="30" max="200" step="0.1" 
+                                   placeholder="Enter your weight" required>
+                        </div>
                         
                         <div class="input-group">
-                            <label for="weight">Current Weight (kg)</label>
-                            <input type="number" id="weight" name="weight" min="30" max="300" required>
+                            <label for="height">Height (cm) <i class="fas fa-info-circle" data-tooltip="Height is used for BMI calculation and metabolic rate"></i></label>
+                            <input type="number" id="height" name="height" class="input" min="120" max="220" 
+                                   placeholder="Enter your height" required>
                         </div>
-
+                        
                         <div class="input-group">
-                            <label for="height">Height (cm)</label>
-                            <input type="number" id="height" name="height" min="100" max="250" required>
+                            <label for="age">Age <i class="fas fa-info-circle" data-tooltip="Age affects your metabolic rate and nutritional needs"></i></label>
+                            <input type="number" id="age" name="age" class="input" min="13" max="100" 
+                                   placeholder="Enter your age" required>
                         </div>
-
+                        
                         <div class="input-group">
-                            <label for="age">Age</label>
-                            <input type="number" id="age" name="age" min="13" max="100" required>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="gender">Gender</label>
-                            <select id="gender" name="gender" required>
-                                <option value="">Select Gender</option>
+                            <label for="gender">Gender <i class="fas fa-info-circle" data-tooltip="Gender affects calorie calculation and nutritional requirements"></i></label>
+                            <select id="gender" name="gender" class="input" required>
+                                <option value="">Select gender</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="other">Other</option>
                             </select>
                         </div>
                     </div>
+                </section>
 
-                    <!-- Diet & Goals Section -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-target"></i> Diet & Fitness Goals</h3>
-                        
+                <!-- Diet & Goals Section -->
+                <section class="form-section">
+                    <h3><i class="fas fa-target"></i> Diet & Fitness Goals</h3>
+                    
+                    <div class="form-grid">
                         <div class="input-group">
                             <label for="dietType">Diet Type</label>
-                            <select id="dietType" name="dietType" required>
-                                <option value="">Select Diet Type</option>
+                            <select id="dietType" name="dietType" class="input" required>
+                                <option value="">Select diet type</option>
                                 <option value="balanced">Balanced Diet</option>
                                 <option value="vegetarian">Vegetarian</option>
                                 <option value="vegan">Vegan</option>
@@ -71,11 +242,11 @@
                                 <option value="high-protein">High Protein</option>
                             </select>
                         </div>
-
+                        
                         <div class="input-group">
                             <label for="fitnessGoal">Fitness Goal</label>
-                            <select id="fitnessGoal" name="fitnessGoal" required>
-                                <option value="">Select Goal</option>
+                            <select id="fitnessGoal" name="fitnessGoal" class="input" required>
+                                <option value="">Select fitness goal</option>
                                 <option value="weight-loss">Weight Loss</option>
                                 <option value="weight-gain">Weight Gain</option>
                                 <option value="muscle-gain">Muscle Gain</option>
@@ -83,11 +254,11 @@
                                 <option value="endurance">Build Endurance</option>
                             </select>
                         </div>
-
+                        
                         <div class="input-group">
                             <label for="activityLevel">Activity Level</label>
-                            <select id="activityLevel" name="activityLevel" required>
-                                <option value="">Select Activity Level</option>
+                            <select id="activityLevel" name="activityLevel" class="input" required>
+                                <option value="">Select activity level</option>
                                 <option value="sedentary">Sedentary (little/no exercise)</option>
                                 <option value="light">Light (1-3 days/week)</option>
                                 <option value="moderate">Moderate (3-5 days/week)</option>
@@ -95,222 +266,182 @@
                                 <option value="very-active">Very Active (2x/day)</option>
                             </select>
                         </div>
-                    </div>
-
-                    <!-- Dietary Requirements Section -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Dietary Requirements</h3>
                         
                         <div class="input-group">
-                            <label for="allergies">Allergies & Intolerances</label>
-                            <div class="checkbox-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="allergies" value="nuts"> Nuts
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="allergies" value="dairy"> Dairy
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="allergies" value="gluten"> Gluten
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="allergies" value="shellfish"> Shellfish
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="allergies" value="eggs"> Eggs
-                                </label>
-                                <label class="checkbox-item">
-                                    <input type="checkbox" name="allergies" value="soy"> Soy
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="input-group">
-                            <label for="budget">Budget Range (per meal)</label>
-                            <select id="budget" name="budget" required>
-                                <option value="">Select Budget</option>
-                                <option value="low">$5 - $10</option>
-                                <option value="medium">$10 - $20</option>
-                                <option value="high">$20 - $35</option>
-                                <option value="premium">$35+</option>
+                            <label for="budget">Budget per Meal</label>
+                            <select id="budget" name="budget" class="input" required>
+                                <option value="">Select budget range</option>
+                                <option value="low">Budget-friendly ($5-15)</option>
+                                <option value="medium">Moderate ($15-30)</option>
+                                <option value="high">Premium ($30-50)</option>
+                                <option value="luxury">Luxury ($50+)</option>
                             </select>
                         </div>
                     </div>
+                </section>
 
-                    <!-- AI Body Analysis Section -->
-<div class="form-section">
-    <h3><i class="fas fa-user-md"></i> AI Body Analysis & Auto-Fill</h3>
-    
-    <div class="input-group">
-        <label for="bodyImage">Upload Your Photo for Automatic Form Filling</label>
-        <div class="upload-area" id="uploadArea">
-            <div class="upload-content">
-                <i class="fas fa-user-circle"></i>
-                <p>Upload your photo to auto-fill your profile</p>
-                <p class="upload-subtitle">AI will detect your height, weight, age, and gender</p>
-                <div class="upload-options">
-                    <button type="button" class="upload-option-btn" id="browseFiles">
-                        <i class="fas fa-folder-open"></i>
-                        Browse Photos
-                    </button>
-                    <button type="button" class="upload-option-btn" id="captureCamera">
-                        <i class="fas fa-camera"></i>
-                        Take Photo
-                    </button>
-                </div>
-                <input type="file" id="bodyImage" name="bodyImage" accept="image/*" hidden>
-                <input type="file" id="cameraCapture" name="cameraCapture" accept="image/*" capture="user" hidden>
-            </div>
-            <div class="upload-preview" id="uploadPreview" style="display: none;">
-                <img id="previewImage" style="display: none;">
-                <div class="preview-overlay">
-                    <button type="button" class="preview-action-btn" id="retakePhoto" style="display: none;">
-                        <i class="fas fa-redo"></i>
-                        Retake
-                    </button>
-                    <button type="button" class="remove-btn" id="removeUpload">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Camera Modal -->
-        <div class="camera-modal" id="cameraModal" style="display: none;">
-            <div class="camera-modal-content">
-                <div class="camera-header">
-                    <h4><i class="fas fa-camera"></i> Capture for Body Analysis</h4>
-                    <button type="button" class="close-camera" id="closeCameraModal">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="camera-container">
-                    <video id="cameraStream" autoplay playsinline></video>
-                    <canvas id="captureCanvas" style="display: none;"></canvas>
-                    <div class="camera-overlay">
-                        <div class="camera-guide">
-                            <div class="body-guide-frame"></div>
-                            <p>Position yourself in the frame</p>
-                            <p class="guide-tip">Full body or upper body shots work best</p>
+                <!-- Dietary Restrictions Section -->
+                <section class="form-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Dietary Restrictions</h3>
+                    
+                    <div class="input-group">
+                        <label>Select any allergies or dietary restrictions:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="dairy" name="allergies" value="dairy">
+                                <label for="dairy">Dairy</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="nuts" name="allergies" value="nuts">
+                                <label for="nuts">Nuts</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="gluten" name="allergies" value="gluten">
+                                <label for="gluten">Gluten</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="eggs" name="allergies" value="eggs">
+                                <label for="eggs">Eggs</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="soy" name="allergies" value="soy">
+                                <label for="soy">Soy</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="shellfish" name="allergies" value="shellfish">
+                                <label for="shellfish">Shellfish</label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="camera-controls">
-                    <button type="button" class="camera-control-btn" id="switchCamera">
-                        <i class="fas fa-sync-alt"></i>
-                        Switch Camera
-                    </button>
-                    <button type="button" class="capture-btn" id="capturePhoto">
-                        <i class="fas fa-camera"></i>
-                        Capture Photo
-                    </button>
-                    <button type="button" class="camera-control-btn" id="cancelCapture">
-                        <i class="fas fa-times"></i>
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </div>
+                </section>
 
-        <div class="ai-analysis" id="aiAnalysis" style="display: none;">
-            <div class="analysis-header">
-                <i class="fas fa-brain"></i>
-                <span>AI Body Analysis Results</span>
-                <div class="loading-spinner" id="analysisSpinner" style="display: none;"></div>
-            </div>
-            <div class="analysis-results" id="analysisResults"></div>
-            <div class="auto-fill-status" id="autoFillStatus" style="display: none;">
-                <div class="status-message">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Form automatically filled based on AI analysis!</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="ai-features">
-        <h4><i class="fas fa-robot"></i> What AI Will Auto-Fill:</h4>
-        <div class="feature-grid">
-            <div class="feature-item">
-                <i class="fas fa-ruler-vertical"></i>
-                <span>Height Detection</span>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-weight"></i>
-                <span>Weight Estimation</span>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-birthday-cake"></i>
-                <span>Age Estimation</span>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-venus-mars"></i>
-                <span>Gender Detection</span>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-dumbbell"></i>
-                <span>Body Type Analysis</span>
-            </div>
-            <div class="feature-item">
-                <i class="fas fa-heartbeat"></i>
-                <span>Fitness Level</span>
-            </div>
-        </div>
-        
-        <!-- Debug button for testing -->
-        <div style="margin-top: 15px; text-align: center;">
-            <button type="button" id="testAutoFillBtn" class="upload-option-btn" style="background: #dc3545;">
-                <i class="fas fa-bug"></i>
-                Test Auto-Fill (Debug)
-            </button>
-        </div>
-    </div>
-</div>
-
-                    <!-- Location Section -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
-                        
-                        <div class="input-group">
-                            <button type="button" id="getLocation" class="location-btn">
-                                <i class="fas fa-crosshairs"></i>
-                                Get My Location
-                            </button>
-                            <p id="locationStatus" class="location-status"></p>
+                <!-- Location Section -->
+                <section class="form-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Location Services</h3>
+                    
+                    <div class="location-section">
+                        <div class="location-icon">
+                            <i class="fas fa-crosshairs"></i>
                         </div>
+                        <h4>Enable Location for Restaurant Recommendations</h4>
+                        <p>Get personalized restaurant suggestions and food options near you with Google Maps integration.</p>
+                        <button type="button" id="getLocation" class="btn btn-primary btn-lg">
+                            <i class="fas fa-location-arrow"></i>
+                            Get My Location
+                        </button>
+                        <div id="locationStatus" class="location-status" style="margin-top: 1rem;"></div>
                     </div>
-                </div>
+                </section>
 
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-search"></i>
-                    Get Food Recommendations
-                </button>
+                <!-- Submit Section -->
+                <section class="submit-section">
+                    <!-- Test Button for Development -->
+                    <button type="button" class="btn btn-secondary" id="fillTestData" style="margin-right: 1rem;">
+                        <i class="fas fa-flask"></i>
+                        Fill Test Data
+                    </button>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-magic"></i>
+                        Get My Food Recommendations
+                    </button>
+                </section>
             </form>
-        </main>
 
-        <!-- Results Section -->
-        <section id="results" class="results-section" style="display: none;">
-            <h2><i class="fas fa-star"></i> Your Personalized Recommendations</h2>
-            
-            <div class="results-grid">
-                <div class="nutrition-card">
-                    <h3><i class="fas fa-calculator"></i> Daily Nutrition Goals</h3>
-                    <div id="nutritionGoals"></div>
+            <!-- Results Section -->
+            <section class="results-section" id="results" style="display: none;">
+                <div class="results-grid">
+                    <!-- Nutrition Goals Card -->
+                    <div class="result-card" id="nutritionGoals">
+                        <h4><i class="fas fa-calculator"></i> Your Nutrition Goals</h4>
+                        <div id="nutritionContent"></div>
+                    </div>
+
+                    <!-- Food Recommendations Card -->
+                    <div class="result-card" id="foodRecommendations">
+                        <h4><i class="fas fa-utensils"></i> Recommended Foods</h4>
+                        <div id="foodContent"></div>
+                    </div>
                 </div>
+            </section>
 
-                <div class="recommendations-card">
-                    <h3><i class="fas fa-utensils"></i> Recommended Foods</h3>
-                    <div id="foodRecommendations"></div>
+            <!-- Nearby Restaurants Section -->
+            <section class="nearby-restaurants-section" id="nearbyRestaurantsSection" style="display: none;">
+                <div class="restaurants-container">
+                    <div class="restaurants-header">
+                        <h2><i class="fas fa-map-marker-alt"></i> Nearby Restaurants & Food Options</h2>
+                        <p>Discover restaurants near you with personalized menu recommendations based on your dietary preferences</p>
+                    </div>
+                    <div class="restaurants-content" id="locationContent">
+                        <!-- Restaurant content will be populated here -->
+                    </div>
                 </div>
+            </section>
+        </div>
+    </main>
 
-                <div class="locations-card">
-                    <h3><i class="fas fa-map-marker-alt"></i> Nearby Restaurants</h3>
-                    <div id="nearbyLocations"></div>
+    <!-- Floating Action Button -->
+    <button class="fab" id="quickRecommendations" data-tooltip="Get Quick Recommendations" title="Get Quick Recommendations">
+        <i class="fas fa-magic"></i>
+    </button>
+
+    <!-- Enhanced Footer -->
+    <footer class="enhanced-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-apple-alt"></i>
+                        <span>FoodWise</span>
+                    </div>
+                    <p>AI-powered nutrition intelligence for healthier living.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook" data-tooltip="Follow us on Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" aria-label="Twitter" data-tooltip="Follow us on Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="Instagram" data-tooltip="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="LinkedIn" data-tooltip="Connect on LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li><a href="#ai-analysis">🤖 AI Body Analysis</a></li>
+                        <li><a href="#nutrition">🍎 Nutrition Planning</a></li>
+                        <li><a href="#location">📍 Location Services</a></li>
+                        <li><a href="#recommendations">✨ Smart Recommendations</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#help">📚 Help Center</a></li>
+                        <li><a href="#blog">📝 Nutrition Blog</a></li>
+                        <li><a href="#recipes">🍽️ Healthy Recipes</a></li>
+                        <li><a href="#tips">💡 Health Tips</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#privacy">🔒 Privacy Policy</a></li>
+                        <li><a href="#terms">📋 Terms of Service</a></li>
+                        <li><a href="#contact">📧 Contact Us</a></li>
+                        <li><a href="#feedback">💬 Feedback</a></li>
+                    </ul>
                 </div>
             </div>
-        </section>
-    </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FoodWise. All rights reserved. Made with ❤️ for healthier living.</p>
+                <div class="footer-badges">
+                    <span class="status-badge success">AI-Powered</span>
+                    <span class="status-badge info">Privacy-First</span>
+                    <span class="status-badge warning">Beta</span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
+    <!-- Scripts -->
     <script src="script.js"></script>
 </body>
 </html>
