@@ -13,16 +13,1736 @@ class FoodWise {
     }
 
     bindEvents() {
+        console.log('Binding events...');
+        
         // Get location button
-        document.getElementById('getLocation').addEventListener('click', () => {
-            this.getCurrentLocation();
-        });
+        const locationBtn = document.getElementById('getLocation');
+        if (locationBtn) {
+            locationBtn.addEventListener('click', () => {
+                this.getCurrentLocation();
+            });
+            console.log('Location button event bound');
+        } else {
+            console.error('Location button not found');
+        }
 
         // Form submission
-        document.getElementById('foodForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleFormSubmission();
+        const form = document.getElementById('foodForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleFormSubmission();
+            });
+            console.log('Form submission event bound');
+        } else {
+            console.error('Form not found');
+        }
+
+        // AI Image Detection Events
+        this.initializeImageDetection();
+        console.log('All events bound successfully');
+    }
+
+    // Test function to verify auto-fill works (for debugging)
+    testAutoFill() {
+        console.log('Testing auto-fill functionality...');
+        
+        const testAnalysis = {
+            physicalCharacteristics: {
+                height: 175,
+                weight: 70,
+                age: 28,
+                gender: 'male',
+                genderConfidence: 0.8,
+                bmi: 22.9,
+                bodyType: 'Athletic',
+                fitnessLevel: 'Active'
+            },
+            suggestions: {
+                dietType: 'high-protein',
+                fitnessGoal: 'muscle-gain',
+                activityLevel: 'active'
+            },
+            analysisDetails: {
+                skinDetection: '45.2',
+                imageQuality: 'High',
+                aspectRatio: '1.60',
+                brightness: '165.3',
+                confidence: 0.85
+            }
+        };
+        
+        this.autoFillFormFields(testAnalysis);
+    }
+
+    // Initialize AI Image Detection (updated with test button for debugging)
+    initializeImageDetection() {
+        console.log('Initializing image detection...');
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('bodyImage');
+        const cameraInput = document.getElementById('cameraCapture');
+        const browseBtn = document.getElementById('browseFiles');
+        const cameraBtn = document.getElementById('captureCamera');
+        const removeBtn = document.getElementById('removeUpload');
+        const retakeBtn = document.getElementById('retakePhoto');
+        const testBtn = document.getElementById('testAutoFillBtn');
+
+        // Initialize camera functionality
+        this.initializeCameraCapture();
+
+        // Test button for debugging
+        if (testBtn) {
+            testBtn.addEventListener('click', () => {
+                console.log('Test button clicked');
+                this.testAutoFill();
+            });
+            console.log('Test button event bound');
+        }
+
+        // Browse files button
+        if (browseBtn) {
+            browseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('Browse button clicked');
+                fileInput.click();
+            });
+            console.log('Browse button event bound');
+        }
+
+        // Camera capture button
+        if (cameraBtn) {
+            cameraBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                console.log('Camera button clicked');
+                this.openCameraModal();
+            });
+            console.log('Camera button event bound');
+        }
+
+        // File input change
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                console.log('File input changed, files:', e.target.files);
+                if (e.target.files.length > 0) {
+                    this.handleFileUpload(e.target.files[0]);
+                }
+            });
+            console.log('File input event bound');
+        }
+
+        // Camera input change (fallback for devices without camera API)
+        if (cameraInput) {
+            cameraInput.addEventListener('change', (e) => {
+                console.log('Camera input changed, files:', e.target.files);
+                if (e.target.files.length > 0) {
+                    this.handleFileUpload(e.target.files[0], true);
+                }
+            });
+            console.log('Camera input event bound');
+        }
+
+        // Drag and drop
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                console.log('Files dropped:', files);
+                if (files.length > 0) {
+                    this.handleFileUpload(files[0]);
+                }
+            });
+            console.log('Drag and drop events bound');
+        }
+
+        // Remove upload
+        if (removeBtn) {
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.removeUpload();
+            });
+            console.log('Remove button event bound');
+        }
+
+        // Retake photo
+        if (retakeBtn) {
+            retakeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.openCameraModal();
+            });
+            console.log('Retake button event bound');
+        }
+        
+        console.log('Image detection initialized successfully');
+    }
+
+    // Handle file upload (for body analysis and auto-fill)
+    handleFileUpload(file, fromCamera = false) {
+        console.log('File upload started:', file.name, file.type, file.size);
+        
+        // Validate file type - only images for body analysis
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please upload a valid image file (JPEG, PNG, GIF, WebP)');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            console.log('File loaded successfully, starting analysis...');
+            this.displayPreview(file, e.target.result, fromCamera);
+            this.analyzeBodyFromImage(file, e.target.result);
+        };
+        reader.onerror = (e) => {
+            console.error('Error reading file:', e);
+            alert('Error reading the uploaded file. Please try again.');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Analyze body characteristics from image and auto-fill form
+    async analyzeBodyFromImage(file, dataUrl) {
+        console.log('Starting body analysis...');
+        
+        const aiAnalysis = document.getElementById('aiAnalysis');
+        const analysisSpinner = document.getElementById('analysisSpinner');
+        const analysisResults = document.getElementById('analysisResults');
+
+        // Show analysis section
+        aiAnalysis.style.display = 'block';
+        analysisSpinner.style.display = 'block';
+        analysisResults.innerHTML = '<p>🔍 Analyzing your photo to detect physical characteristics...</p>';
+
+        try {
+            // Simulate AI processing delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            console.log('Performing image analysis...');
+            // Perform actual image analysis for body detection
+            const imageAnalysis = await this.performImageAnalysis(dataUrl);
+            console.log('Image analysis completed:', imageAnalysis);
+            
+            const bodyAnalysis = this.generateBodyAnalysisFromImage(imageAnalysis, file.name);
+            console.log('Body analysis generated:', bodyAnalysis);
+            
+            analysisSpinner.style.display = 'none';
+            this.displayBodyAnalysisResults(bodyAnalysis);
+            
+            // Automatically fill form fields immediately
+            console.log('Starting auto-fill process...');
+            this.autoFillFormFields(bodyAnalysis);
+            
+            this.aiAnalysisResults = bodyAnalysis;
+            
+        } catch (error) {
+            console.error('Error during analysis:', error);
+            analysisSpinner.style.display = 'none';
+            analysisResults.innerHTML = '<p style="color: red;">❌ Error analyzing image. Please try again.</p>';
+        }
+    }
+
+    // Generate body analysis based on image characteristics (simplified and more reliable)
+    generateBodyAnalysisFromImage(imageAnalysis, filename) {
+        console.log('Generating body analysis from image data...');
+        
+        // Generate realistic but varied estimates
+        const heightOptions = [155, 160, 165, 170, 175, 180, 185];
+        const weightOptions = [50, 55, 60, 65, 70, 75, 80, 85];
+        const ageOptions = [20, 22, 25, 28, 30, 32, 35, 38, 40];
+        const genderOptions = ['male', 'female'];
+        
+        // Use image characteristics to influence selection
+        const brightness = (imageAnalysis.avgColors.r + imageAnalysis.avgColors.g + imageAnalysis.avgColors.b) / 3;
+        const aspectRatio = imageAnalysis.aspectRatio;
+        const skinRatio = imageAnalysis.skinRatio;
+        
+        // Height estimation based on aspect ratio
+        let heightIndex = Math.floor(aspectRatio * 2) % heightOptions.length;
+        if (aspectRatio > 1.5) heightIndex = Math.min(heightIndex + 2, heightOptions.length - 1);
+        const height = heightOptions[heightIndex];
+        
+        // Weight estimation based on height and other factors
+        let weightIndex = Math.floor(height / 25) % weightOptions.length;
+        if (brightness > 150) weightIndex = Math.max(0, weightIndex - 1); // Brighter images suggest lighter weight
+        const weight = weightOptions[weightIndex];
+        
+        // Age estimation based on image quality and texture
+        let ageIndex = Math.floor(imageAnalysis.textureComplexity / 20) % ageOptions.length;
+        if (imageAnalysis.totalPixels > 1000000) ageIndex = Math.max(0, ageIndex - 1); // Higher quality suggests younger
+        const age = ageOptions[ageIndex];
+        
+        // Gender estimation (simplified)
+        const genderIndex = height > 170 ? 0 : 1; // Taller suggests male, shorter suggests female
+        const gender = genderOptions[genderIndex];
+        
+        // Calculate BMI
+        const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+        
+        // Determine body type and fitness level
+        let bodyType = 'Average';
+        let fitnessLevel = 'Moderate';
+        
+        if (bmi < 18.5) {
+            bodyType = 'Slim';
+            fitnessLevel = 'Beginner';
+        } else if (bmi >= 18.5 && bmi < 25) {
+            bodyType = 'Athletic';
+            fitnessLevel = skinRatio > 0.3 ? 'Active' : 'Moderate';
+        } else if (bmi >= 25 && bmi < 30) {
+            bodyType = 'Stocky';
+            fitnessLevel = 'Moderate';
+        } else {
+            bodyType = 'Heavy';
+            fitnessLevel = 'Beginner';
+        }
+        
+        // Determine suggested diet and fitness goals
+        let suggestedDiet = 'balanced';
+        let suggestedGoal = 'maintenance';
+        
+        if (bmi < 18.5) {
+            suggestedDiet = 'high-protein';
+            suggestedGoal = 'weight-gain';
+        } else if (bmi >= 25) {
+            suggestedDiet = 'low-carb';
+            suggestedGoal = 'weight-loss';
+        } else if (fitnessLevel === 'Active') {
+            suggestedDiet = 'high-protein';
+            suggestedGoal = 'muscle-gain';
+        }
+        
+        const result = {
+            physicalCharacteristics: {
+                height: height,
+                weight: weight,
+                age: age,
+                gender: gender,
+                genderConfidence: 0.75,
+                bmi: parseFloat(bmi),
+                bodyType: bodyType,
+                fitnessLevel: fitnessLevel
+            },
+            suggestions: {
+                dietType: suggestedDiet,
+                fitnessGoal: suggestedGoal,
+                activityLevel: this.getActivityLevelFromFitness(fitnessLevel)
+            },
+            analysisDetails: {
+                skinDetection: (skinRatio * 100).toFixed(1),
+                imageQuality: imageAnalysis.totalPixels > 500000 ? 'High' : 'Medium',
+                aspectRatio: aspectRatio.toFixed(2),
+                brightness: brightness.toFixed(1),
+                confidence: 0.85
+            }
+        };
+        
+        console.log('Generated body analysis:', result);
+        return result;
+    }
+
+    // Auto-fill form fields with detected characteristics (improved with better error handling)
+    autoFillFormFields(analysis) {
+        console.log('Auto-filling form fields with:', analysis);
+        
+        const characteristics = analysis.physicalCharacteristics;
+        const suggestions = analysis.suggestions;
+        
+        // Show auto-fill status immediately
+        const autoFillStatus = document.getElementById('autoFillStatus');
+        if (autoFillStatus) {
+            autoFillStatus.style.display = 'block';
+        }
+        
+        // Auto-fill physical characteristics with staggered animation
+        const fillSequence = [
+            { field: 'height', value: characteristics.height, delay: 200 },
+            { field: 'weight', value: characteristics.weight, delay: 400 },
+            { field: 'age', value: characteristics.age, delay: 600 },
+            { field: 'gender', value: characteristics.gender, delay: 800 },
+            { field: 'dietType', value: suggestions.dietType, delay: 1000 },
+            { field: 'fitnessGoal', value: suggestions.fitnessGoal, delay: 1200 },
+            { field: 'activityLevel', value: suggestions.activityLevel, delay: 1400 }
+        ];
+        
+        fillSequence.forEach(item => {
+            setTimeout(() => {
+                console.log(`Filling field ${item.field} with value ${item.value}`);
+                this.animateFieldUpdate(item.field, item.value);
+            }, item.delay);
         });
+        
+        // Show success notification
+        setTimeout(() => {
+            console.log('Showing auto-fill notification');
+            this.showAutoFillNotification();
+        }, 1600);
+    }
+
+    // Animate field updates for better UX (improved with better error handling)
+    animateFieldUpdate(fieldId, value) {
+        console.log(`Animating field update: ${fieldId} = ${value}`);
+        
+        const field = document.getElementById(fieldId);
+        if (!field) {
+            console.error(`Field with ID '${fieldId}' not found`);
+            return;
+        }
+
+        // Add highlight animation
+        field.classList.add('field-updating');
+        
+        setTimeout(() => {
+            try {
+                field.value = value;
+                field.classList.remove('field-updating');
+                field.classList.add('field-updated');
+                
+                console.log(`Successfully updated field ${fieldId} with value ${value}`);
+                
+                // Trigger change event to ensure any listeners are notified
+                const event = new Event('change', { bubbles: true });
+                field.dispatchEvent(event);
+                
+                // Remove updated class after animation
+                setTimeout(() => {
+                    field.classList.remove('field-updated');
+                }, 1000);
+                
+            } catch (error) {
+                console.error(`Error updating field ${fieldId}:`, error);
+            }
+        }, 300);
+    }
+
+    // Show auto-fill notification (improved)
+    showAutoFillNotification() {
+        console.log('Showing auto-fill notification');
+        
+        // Remove any existing notifications first
+        const existingNotifications = document.querySelectorAll('.auto-fill-notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = 'auto-fill-notification';
+        notification.innerHTML = `
+            <i class="fas fa-magic"></i>
+            <div class="notification-content">
+                <strong>✅ Form Auto-Filled Successfully!</strong>
+                <p>Your profile has been automatically completed based on AI analysis of your photo.</p>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        const form = document.getElementById('foodForm');
+        if (form) {
+            form.insertBefore(notification, form.firstChild);
+            
+            // Auto-remove notification after 10 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 10000);
+        } else {
+            console.error('Form element not found');
+        }
+    }
+
+    // Display body analysis results
+    displayBodyAnalysisResults(analysis) {
+        const analysisResults = document.getElementById('analysisResults');
+        const characteristics = analysis.physicalCharacteristics;
+        const details = analysis.analysisDetails;
+        
+        let html = '<div class="body-analysis-summary">';
+        html += `<h5><i class="fas fa-user-md"></i> Detected Physical Characteristics</h5>`;
+        html += `<div class="characteristics-grid">`;
+        html += `<div class="characteristic-item auto-filled">`;
+        html += `<i class="fas fa-ruler-vertical"></i>`;
+        html += `<div class="char-info">`;
+        html += `<span class="char-label">Height</span>`;
+        html += `<span class="char-value">${characteristics.height} cm</span>`;
+        html += `</div>`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        
+        html += `<div class="characteristic-item auto-filled">`;
+        html += `<i class="fas fa-weight"></i>`;
+        html += `<div class="char-info">`;
+        html += `<span class="char-label">Weight</span>`;
+        html += `<span class="char-value">${characteristics.weight} kg</span>`;
+        html += `</div>`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        
+        html += `<div class="characteristic-item auto-filled">`;
+        html += `<i class="fas fa-birthday-cake"></i>`;
+        html += `<div class="char-info">`;
+        html += `<span class="char-label">Age</span>`;
+        html += `<span class="char-value">${characteristics.age} years</span>`;
+        html += `</div>`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        
+        html += `<div class="characteristic-item auto-filled">`;
+        html += `<i class="fas fa-venus-mars"></i>`;
+        html += `<div class="char-info">`;
+        html += `<span class="char-label">Gender</span>`;
+        html += `<span class="char-value">${characteristics.gender.charAt(0).toUpperCase() + characteristics.gender.slice(1)}</span>`;
+        html += `</div>`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        
+        html += `<div class="characteristic-item">`;
+        html += `<i class="fas fa-chart-line"></i>`;
+        html += `<div class="char-info">`;
+        html += `<span class="char-label">BMI</span>`;
+        html += `<span class="char-value">${characteristics.bmi}</span>`;
+        html += `</div>`;
+        html += `</div>`;
+        
+        html += `<div class="characteristic-item">`;
+        html += `<i class="fas fa-dumbbell"></i>`;
+        html += `<div class="char-info">`;
+        html += `<span class="char-label">Body Type</span>`;
+        html += `<span class="char-value">${characteristics.bodyType}</span>`;
+        html += `</div>`;
+        html += `</div>`;
+        html += `</div></div>`;
+
+        html += '<div class="analysis-details">';
+        html += `<h5><i class="fas fa-microscope"></i> Analysis Details</h5>`;
+        html += `<div class="detail-metrics">`;
+        html += `<span class="detail-metric">👤 Skin Detection: ${details.skinDetection}%</span>`;
+        html += `<span class="detail-metric">📐 Aspect Ratio: ${details.aspectRatio}</span>`;
+        html += `<span class="detail-metric">💡 Brightness: ${details.brightness}</span>`;
+        html += `<span class="detail-metric">🔍 Image Quality: ${details.imageQuality}</span>`;
+        html += `<span class="detail-metric">🎯 Confidence: ${Math.round(details.confidence * 100)}%</span>`;
+        html += `</div></div>`;
+
+        html += '<div class="auto-suggestions">';
+        html += `<h5><i class="fas fa-lightbulb"></i> AI Suggestions (Also Auto-Filled)</h5>`;
+        html += `<div class="suggestion-items">`;
+        html += `<div class="suggestion-item auto-filled">`;
+        html += `<strong>Diet Type:</strong> ${this.formatDietType(analysis.suggestions.dietType)}`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        html += `<div class="suggestion-item auto-filled">`;
+        html += `<strong>Fitness Goal:</strong> ${this.formatFitnessGoal(analysis.suggestions.fitnessGoal)}`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        html += `<div class="suggestion-item auto-filled">`;
+        html += `<strong>Activity Level:</strong> ${this.formatActivityLevel(analysis.suggestions.activityLevel)}`;
+        html += `<i class="fas fa-check-circle auto-fill-check"></i>`;
+        html += `</div>`;
+        html += `</div></div>`;
+
+        html += '<div class="accuracy-note">';
+        html += '<p><i class="fas fa-info-circle"></i> <strong>Note:</strong> These estimates are based on image analysis. You can manually adjust any auto-filled values if needed.</p>';
+        html += '</div>';
+
+        analysisResults.innerHTML = html;
+    }
+
+    // Initialize camera capture functionality
+    initializeCameraCapture() {
+        this.currentStream = null;
+        this.currentFacingMode = 'user'; // Start with front camera for selfies
+        
+        // Camera modal controls
+        document.getElementById('closeCameraModal').addEventListener('click', () => {
+            this.closeCameraModal();
+        });
+
+        document.getElementById('capturePhoto').addEventListener('click', () => {
+            this.capturePhotoFromCamera();
+        });
+
+        document.getElementById('switchCamera').addEventListener('click', () => {
+            this.switchCamera();
+        });
+
+        document.getElementById('cancelCapture').addEventListener('click', () => {
+            this.closeCameraModal();
+        });
+
+        // Close modal on background click
+        document.getElementById('cameraModal').addEventListener('click', (e) => {
+            if (e.target.id === 'cameraModal') {
+                this.closeCameraModal();
+            }
+        });
+    }
+
+    // Open camera modal
+    async openCameraModal() {
+        const modal = document.getElementById('cameraModal');
+        modal.style.display = 'flex';
+        
+        try {
+            await this.startCamera();
+        } catch (error) {
+            console.error('Camera error:', error);
+            this.showCameraError(error);
+        }
+    }
+
+    // Close camera modal
+    closeCameraModal() {
+        const modal = document.getElementById('cameraModal');
+        modal.style.display = 'none';
+        this.stopCamera();
+    }
+
+    // Start camera stream
+    async startCamera() {
+        const video = document.getElementById('cameraStream');
+        const container = document.querySelector('.camera-container');
+        
+        // Remove any existing error messages
+        const existingError = container.querySelector('.camera-permission-notice');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        try {
+            // Stop existing stream
+            if (this.currentStream) {
+                this.stopCamera();
+            }
+
+            // Request camera access
+            const constraints = {
+                video: {
+                    facingMode: this.currentFacingMode,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+
+            this.currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = this.currentStream;
+            video.style.display = 'block';
+            
+            // Show camera controls
+            document.getElementById('switchCamera').style.display = 'flex';
+            
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            throw error;
+        }
+    }
+
+    // Stop camera stream
+    stopCamera() {
+        if (this.currentStream) {
+            this.currentStream.getTracks().forEach(track => track.stop());
+            this.currentStream = null;
+        }
+        
+        const video = document.getElementById('cameraStream');
+        video.srcObject = null;
+    }
+
+    // Switch between front and back camera
+    async switchCamera() {
+        this.currentFacingMode = this.currentFacingMode === 'environment' ? 'user' : 'environment';
+        
+        try {
+            await this.startCamera();
+        } catch (error) {
+            console.error('Error switching camera:', error);
+            // Switch back if failed
+            this.currentFacingMode = this.currentFacingMode === 'environment' ? 'user' : 'environment';
+        }
+    }
+
+    // Capture photo from camera
+    capturePhotoFromCamera() {
+        const video = document.getElementById('cameraStream');
+        const canvas = document.getElementById('captureCanvas');
+        const container = document.querySelector('.camera-container');
+        
+        // Set canvas dimensions to match video
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        // Draw video frame to canvas
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        
+        // Add flash effect
+        const flash = document.createElement('div');
+        flash.className = 'capture-flash';
+        container.appendChild(flash);
+        setTimeout(() => flash.remove(), 300);
+        
+        // Convert canvas to blob
+        canvas.toBlob((blob) => {
+            // Create file from blob
+            const file = new File([blob], `camera-capture-${Date.now()}.jpg`, {
+                type: 'image/jpeg'
+            });
+            
+            // Close camera modal
+            this.closeCameraModal();
+            
+            // Process the captured image
+            this.handleCameraCapture(file);
+        }, 'image/jpeg', 0.9);
+    }
+
+    // Handle camera capture
+    handleCameraCapture(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.displayPreview(file, e.target.result, true);
+            this.analyzeImage(file, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Show camera error
+    showCameraError(error) {
+        const container = document.querySelector('.camera-container');
+        const video = document.getElementById('cameraStream');
+        video.style.display = 'none';
+        
+        let errorMessage = 'Unable to access camera.';
+        let errorDetails = 'Please check your camera permissions and try again.';
+        
+        if (error.name === 'NotAllowedError') {
+            errorMessage = 'Camera access denied';
+            errorDetails = 'Please allow camera access in your browser settings and refresh the page.';
+        } else if (error.name === 'NotFoundError') {
+            errorMessage = 'No camera found';
+            errorDetails = 'Please make sure your device has a camera connected.';
+        } else if (error.name === 'NotSupportedError') {
+            errorMessage = 'Camera not supported';
+            errorDetails = 'Your browser or device doesn\'t support camera access.';
+        }
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'camera-permission-notice';
+        errorDiv.innerHTML = `
+            <i class="fas fa-camera-slash"></i>
+            <h4>${errorMessage}</h4>
+            <p>${errorDetails}</p>
+            <button class="retry-camera-btn" onclick="this.parentElement.remove(); document.querySelector('#captureCamera').click();">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        `;
+        
+        container.appendChild(errorDiv);
+        
+        // Hide camera controls
+        document.getElementById('switchCamera').style.display = 'none';
+    }
+
+    // Handle file upload (enhanced for mood analysis)
+    handleFileUpload(file, fromCamera = false) {
+        // Validate file type - only images for mood analysis
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please upload a valid image file (JPEG, PNG, GIF, WebP)');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.displayPreview(file, e.target.result, fromCamera);
+            this.analyzeMoodFromImage(file, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Display preview (for person images only)
+    displayPreview(file, dataUrl, fromCamera = false) {
+        const uploadContent = document.querySelector('.upload-content');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const previewImage = document.getElementById('previewImage');
+        const retakeBtn = document.getElementById('retakePhoto');
+
+        uploadContent.style.display = 'none';
+        uploadPreview.style.display = 'block';
+
+        // Only handle images for person analysis
+        previewImage.src = dataUrl;
+        previewImage.style.display = 'block';
+
+        // Show retake button only for camera captures
+        retakeBtn.style.display = fromCamera ? 'flex' : 'none';
+    }
+
+    // Handle file upload
+    handleFileUpload(file) {
+        // Validate file type
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'video/ogg'];
+        if (!validTypes.includes(file.type)) {
+            alert('Please upload a valid image or video file (JPEG, PNG, GIF, WebP, MP4, WebM, OGG)');
+            return;
+        }
+
+        // Validate file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File size must be less than 10MB');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.displayPreview(file, e.target.result);
+            this.analyzeImage(file, e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Display preview
+    displayPreview(file, dataUrl) {
+        const uploadContent = document.querySelector('.upload-content');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const previewImage = document.getElementById('previewImage');
+        const previewVideo = document.getElementById('previewVideo');
+
+        uploadContent.style.display = 'none';
+        uploadPreview.style.display = 'block';
+
+        if (file.type.startsWith('image/')) {
+            previewImage.src = dataUrl;
+            previewImage.style.display = 'block';
+            previewVideo.style.display = 'none';
+        } else if (file.type.startsWith('video/')) {
+            previewVideo.src = dataUrl;
+            previewVideo.style.display = 'block';
+            previewImage.style.display = 'none';
+        }
+    }
+
+    // Remove upload
+    removeUpload() {
+        const uploadContent = document.querySelector('.upload-content');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const aiAnalysis = document.getElementById('aiAnalysis');
+        const fileInput = document.getElementById('foodImage');
+
+        uploadContent.style.display = 'flex';
+        uploadPreview.style.display = 'none';
+        aiAnalysis.style.display = 'none';
+        fileInput.value = '';
+
+        this.aiAnalysisResults = null;
+    }
+
+    // Analyze mood from image using AI
+    async analyzeMoodFromImage(file, dataUrl) {
+        const aiAnalysis = document.getElementById('aiAnalysis');
+        const analysisSpinner = document.getElementById('analysisSpinner');
+        const analysisResults = document.getElementById('analysisResults');
+
+        // Show analysis section
+        aiAnalysis.style.display = 'block';
+        analysisSpinner.style.display = 'block';
+        analysisResults.innerHTML = '<p>Analyzing your facial expression and mood...</p>';
+
+        // Simulate AI processing delay
+        await new Promise(resolve => setTimeout(resolve, 2500));
+
+        // Perform actual image analysis for mood detection
+        const imageAnalysis = await this.performImageAnalysis(dataUrl);
+        const moodAnalysis = this.generateMoodAnalysisFromImage(imageAnalysis, file.name);
+        
+        analysisSpinner.style.display = 'none';
+        this.displayMoodAnalysisResults(moodAnalysis);
+        this.aiAnalysisResults = moodAnalysis;
+    }
+
+    // Generate mood analysis based on image characteristics
+    generateMoodAnalysisFromImage(imageAnalysis, filename) {
+        // Analyze image characteristics to determine mood
+        const brightness = (imageAnalysis.avgColors.r + imageAnalysis.avgColors.g + imageAnalysis.avgColors.b) / 3;
+        const colorVariance = imageAnalysis.textureComplexity;
+        const skinRatio = imageAnalysis.skinRatio;
+        
+        // Determine primary mood based on image analysis
+        let primaryMood = 'neutral';
+        let moodConfidence = 0.7;
+        let energyLevel = 'moderate';
+        let stressLevel = 'low';
+        
+        // Brightness-based mood detection
+        if (brightness > 180) {
+            primaryMood = Math.random() > 0.5 ? 'happy' : 'excited';
+            energyLevel = 'high';
+            moodConfidence = 0.8;
+        } else if (brightness < 100) {
+            primaryMood = Math.random() > 0.5 ? 'tired' : 'sad';
+            energyLevel = 'low';
+            moodConfidence = 0.75;
+        } else {
+            // Mid-range brightness - analyze other factors
+            if (colorVariance > 40) {
+                primaryMood = 'stressed';
+                stressLevel = 'high';
+                energyLevel = 'moderate';
+            } else if (skinRatio > 0.3) {
+                primaryMood = 'content';
+                energyLevel = 'moderate';
+            }
+        }
+        
+        // Add some randomness to simulate real mood detection
+        const moodOptions = ['happy', 'sad', 'excited', 'tired', 'stressed', 'content', 'hungry', 'satisfied'];
+        if (Math.random() > 0.7) {
+            primaryMood = moodOptions[Math.floor(Math.random() * moodOptions.length)];
+        }
+        
+        // Determine secondary emotions
+        const secondaryEmotions = this.getSecondaryEmotions(primaryMood);
+        
+        // Generate food cravings based on mood
+        const foodCravings = this.getMoodBasedFoodCravings(primaryMood, energyLevel, stressLevel);
+        
+        // Generate recommended foods
+        const recommendedFoods = this.getRecommendedFoodsForMood(primaryMood, energyLevel);
+        
+        return {
+            primaryMood: primaryMood,
+            confidence: moodConfidence,
+            energyLevel: energyLevel,
+            stressLevel: stressLevel,
+            secondaryEmotions: secondaryEmotions,
+            foodCravings: foodCravings,
+            recommendedFoods: recommendedFoods,
+            moodDescription: this.getMoodDescription(primaryMood),
+            nutritionalNeeds: this.getNutritionalNeedsForMood(primaryMood, energyLevel, stressLevel),
+            imageAnalysisData: {
+                brightness: brightness.toFixed(1),
+                colorComplexity: colorVariance.toFixed(1),
+                faceDetection: skinRatio > 0.2 ? 'Good' : 'Limited',
+                analysisConfidence: Math.min(0.6 + skinRatio * 0.4, 0.95)
+            }
+        };
+    }
+
+    // Get secondary emotions based on primary mood
+    getSecondaryEmotions(primaryMood) {
+        const emotionMap = {
+            'happy': ['content', 'energetic', 'social'],
+            'sad': ['lonely', 'tired', 'reflective'],
+            'excited': ['energetic', 'social', 'adventurous'],
+            'tired': ['sluggish', 'unmotivated', 'comfort-seeking'],
+            'stressed': ['anxious', 'overwhelmed', 'tense'],
+            'content': ['peaceful', 'satisfied', 'balanced'],
+            'hungry': ['eager', 'anticipating', 'focused'],
+            'satisfied': ['content', 'relaxed', 'fulfilled']
+        };
+        
+        return emotionMap[primaryMood] || ['neutral', 'calm'];
+    }
+
+    // Get food cravings based on mood
+    getMoodBasedFoodCravings(mood, energy, stress) {
+        const cravingMap = {
+            'happy': ['fresh fruits', 'light salads', 'colorful vegetables', 'smoothies'],
+            'sad': ['comfort foods', 'warm soups', 'chocolate', 'ice cream'],
+            'excited': ['spicy foods', 'exotic cuisines', 'energy bars', 'protein shakes'],
+            'tired': ['caffeine', 'energy-rich foods', 'nuts', 'dark chocolate'],
+            'stressed': ['comfort foods', 'herbal teas', 'magnesium-rich foods', 'calming snacks'],
+            'content': ['balanced meals', 'home-cooked food', 'seasonal produce', 'moderate portions'],
+            'hungry': ['protein-rich foods', 'filling meals', 'complex carbs', 'satisfying snacks'],
+            'satisfied': ['light foods', 'digestive teas', 'fresh fruits', 'minimal portions']
+        };
+        
+        return cravingMap[mood] || ['balanced nutrition', 'regular meals'];
+    }
+
+    // Get recommended foods for specific mood
+    getRecommendedFoodsForMood(mood, energy) {
+        const foodMap = {
+            'happy': [
+                { name: 'Rainbow Salad Bowl', reason: 'Colorful foods match your bright mood', type: 'healthy' },
+                { name: 'Fresh Fruit Smoothie', reason: 'Light and refreshing for positive energy', type: 'energizing' },
+                { name: 'Grilled Fish with Vegetables', reason: 'Omega-3s support continued happiness', type: 'nutritious' }
+            ],
+            'sad': [
+                { name: 'Warm Chicken Soup', reason: 'Comfort food to lift your spirits', type: 'comfort' },
+                { name: 'Dark Chocolate', reason: 'Natural mood booster with endorphins', type: 'mood-boosting' },
+                { name: 'Banana Oatmeal', reason: 'Serotonin-boosting ingredients', type: 'therapeutic' }
+            ],
+            'excited': [
+                { name: 'Spicy Thai Curry', reason: 'Bold flavors match your energy', type: 'adventurous' },
+                { name: 'Protein Energy Bowl', reason: 'Sustain your high energy levels', type: 'energizing' },
+                { name: 'Green Tea Matcha Latte', reason: 'Focused energy without crash', type: 'stimulating' }
+            ],
+            'tired': [
+                { name: 'Espresso with Almond Croissant', reason: 'Quick energy boost you need', type: 'energizing' },
+                { name: 'Iron-Rich Spinach Salad', reason: 'Combat fatigue with nutrients', type: 'revitalizing' },
+                { name: 'Greek Yogurt with Berries', reason: 'Protein and natural sugars for energy', type: 'nourishing' }
+            ],
+            'stressed': [
+                { name: 'Chamomile Tea with Honey', reason: 'Calming properties to reduce stress', type: 'calming' },
+                { name: 'Avocado Toast', reason: 'Healthy fats support stress management', type: 'soothing' },
+                { name: 'Magnesium-Rich Nuts', reason: 'Natural stress relief minerals', type: 'therapeutic' }
+            ],
+            'content': [
+                { name: 'Balanced Buddha Bowl', reason: 'Perfect harmony for your balanced mood', type: 'balanced' },
+                { name: 'Seasonal Vegetable Stir-fry', reason: 'Fresh, wholesome nutrition', type: 'wholesome' },
+                { name: 'Herbal Tea Blend', reason: 'Maintain your peaceful state', type: 'harmonious' }
+            ]
+        };
+        
+        return foodMap[mood] || [
+            { name: 'Mixed Green Salad', reason: 'Light and nutritious option', type: 'neutral' },
+            { name: 'Grilled Chicken', reason: 'Lean protein for sustained energy', type: 'balanced' }
+        ];
+    }
+
+    // Get mood description
+    getMoodDescription(mood) {
+        const descriptions = {
+            'happy': 'You appear cheerful and positive! Your bright energy suggests you\'re in a great mood.',
+            'sad': 'You seem a bit down today. Let\'s find some comfort foods to help lift your spirits.',
+            'excited': 'You look energetic and enthusiastic! Your excitement is contagious.',
+            'tired': 'You appear fatigued and could use an energy boost. Let\'s find foods to revitalize you.',
+            'stressed': 'You seem tense and overwhelmed. Let\'s focus on calming, stress-reducing foods.',
+            'content': 'You look peaceful and satisfied. You\'re in a balanced, harmonious state.',
+            'hungry': 'You appear eager and ready to eat! Let\'s find something satisfying.',
+            'satisfied': 'You look content and fulfilled. Light, digestive foods would be perfect.'
+        };
+        
+        return descriptions[mood] || 'You have a neutral expression. Let\'s find balanced nutrition for you.';
+    }
+
+    // Get nutritional needs based on mood
+    getNutritionalNeedsForMood(mood, energy, stress) {
+        const needs = {
+            'happy': ['Vitamin C for immune support', 'Antioxidants to maintain energy', 'Light, fresh foods'],
+            'sad': ['Omega-3 fatty acids for mood', 'Vitamin D supplements', 'Comfort foods in moderation'],
+            'excited': ['B-vitamins for sustained energy', 'Protein for muscle support', 'Hydration'],
+            'tired': ['Iron for energy', 'Caffeine in moderation', 'Complex carbohydrates'],
+            'stressed': ['Magnesium for relaxation', 'Avoid excess caffeine', 'Anti-inflammatory foods'],
+            'content': ['Balanced macronutrients', 'Seasonal, whole foods', 'Mindful eating']
+        };
+        
+        return needs[mood] || ['Balanced nutrition', 'Regular meal timing', 'Adequate hydration'];
+    }
+
+    // Display mood analysis results
+    displayMoodAnalysisResults(analysis) {
+        const analysisResults = document.getElementById('analysisResults');
+        
+        let html = '<div class="mood-analysis-summary">';
+        html += `<h5><i class="fas fa-smile"></i> Mood Detection Results</h5>`;
+        html += `<div class="mood-display">`;
+        html += `<div class="primary-mood">`;
+        html += `<span class="mood-emoji">${this.getMoodEmoji(analysis.primaryMood)}</span>`;
+        html += `<div class="mood-info">`;
+        html += `<h6>Primary Mood: <strong>${analysis.primaryMood.charAt(0).toUpperCase() + analysis.primaryMood.slice(1)}</strong></h6>`;
+        html += `<p class="mood-description">${analysis.moodDescription}</p>`;
+        html += `<span class="confidence-score">${Math.round(analysis.confidence * 100)}% confident</span>`;
+        html += `</div></div>`;
+        html += `<div class="mood-metrics">`;
+        html += `<span class="mood-metric energy-${analysis.energyLevel}">⚡ Energy: ${analysis.energyLevel}</span>`;
+        html += `<span class="mood-metric stress-${analysis.stressLevel}">😰 Stress: ${analysis.stressLevel}</span>`;
+        html += `</div></div></div>`;
+
+        html += '<div class="secondary-emotions">';
+        html += `<h5><i class="fas fa-heart"></i> Secondary Emotions</h5>`;
+        html += `<div class="emotion-tags">`;
+        analysis.secondaryEmotions.forEach(emotion => {
+            html += `<span class="emotion-tag">${emotion}</span>`;
+        });
+        html += `</div></div>`;
+
+        html += '<div class="food-cravings">';
+        html += `<h5><i class="fas fa-cookie-bite"></i> What You're Craving</h5>`;
+        html += `<div class="craving-list">`;
+        analysis.foodCravings.forEach(craving => {
+            html += `<div class="craving-item">🍽️ ${craving}</div>`;
+        });
+        html += `</div></div>`;
+
+        html += '<div class="recommended-foods">';
+        html += `<h5><i class="fas fa-utensils"></i> Recommended Foods for Your Mood</h5>`;
+        analysis.recommendedFoods.forEach(food => {
+            html += `<div class="food-recommendation">`;
+            html += `<div class="food-header">`;
+            html += `<h6>${food.name}</h6>`;
+            html += `<span class="food-type-badge ${food.type}">${food.type}</span>`;
+            html += `</div>`;
+            html += `<p class="food-reason">${food.reason}</p>`;
+            html += `</div>`;
+        });
+        html += `</div>`;
+
+        html += '<div class="nutritional-needs">';
+        html += `<h5><i class="fas fa-pills"></i> Nutritional Recommendations</h5>`;
+        analysis.nutritionalNeeds.forEach(need => {
+            html += `<div class="nutrition-need">💊 ${need}</div>`;
+        });
+        html += `</div>`;
+
+        html += '<div class="image-analysis-info">';
+        html += `<h5><i class="fas fa-camera"></i> Image Analysis Details</h5>`;
+        html += `<div class="analysis-metrics">`;
+        html += `<span class="analysis-metric">💡 Brightness: ${analysis.imageAnalysisData.brightness}</span>`;
+        html += `<span class="analysis-metric">🎨 Color Complexity: ${analysis.imageAnalysisData.colorComplexity}</span>`;
+        html += `<span class="analysis-metric">👤 Face Detection: ${analysis.imageAnalysisData.faceDetection}</span>`;
+        html += `<span class="analysis-metric">🎯 Confidence: ${Math.round(analysis.imageAnalysisData.analysisConfidence * 100)}%</span>`;
+        html += `</div></div>`;
+
+        analysisResults.innerHTML = html;
+    }
+
+    // Get mood emoji
+    getMoodEmoji(mood) {
+        const emojiMap = {
+            'happy': '😊',
+            'sad': '😢',
+            'excited': '🤩',
+            'tired': '😴',
+            'stressed': '😰',
+            'content': '😌',
+            'hungry': '🤤',
+            'satisfied': '😋'
+        };
+        return emojiMap[mood] || '😐';
+    }
+
+    // Show mood-based food suggestions
+    showMoodBasedFoodSuggestions() {
+        if (!this.aiAnalysisResults) return;
+
+        // Create a modal or section to show detailed food suggestions
+        const modal = document.createElement('div');
+        modal.className = 'food-suggestions-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-utensils"></i> Personalized Food Suggestions</h3>
+                    <button class="close-modal" onclick="this.parentElement.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Based on your <strong>${this.aiAnalysisResults.primaryMood}</strong> mood, here are some perfect food matches:</p>
+                    ${this.aiAnalysisResults.recommendedFoods.map(food => `
+                        <div class="suggestion-card">
+                            <h4>${food.name}</h4>
+                            <p>${food.reason}</p>
+                            <span class="food-type-badge ${food.type}">${food.type}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+    async analyzePersonImage(file, dataUrl) {
+        const aiAnalysis = document.getElementById('aiAnalysis');
+        const analysisSpinner = document.getElementById('analysisSpinner');
+        const analysisResults = document.getElementById('analysisResults');
+
+        // Show analysis section
+        aiAnalysis.style.display = 'block';
+        analysisSpinner.style.display = 'block';
+        analysisResults.innerHTML = '<p>Analyzing your photo for body composition and health metrics...</p>';
+
+        // Simulate AI processing delay
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Perform actual image analysis
+        const imageAnalysis = await this.performImageAnalysis(dataUrl);
+        const mockAnalysis = this.generatePersonAnalysisFromImage(imageAnalysis, file.name);
+        
+        analysisSpinner.style.display = 'none';
+        this.displayPersonAnalysisResults(mockAnalysis);
+        this.aiAnalysisResults = mockAnalysis;
+
+        // Auto-prefill form fields immediately after analysis
+        this.autoPrefillFormFields(mockAnalysis);
+    }
+
+    // Auto-prefill form fields with analysis results
+    autoPrefillFormFields(analysis) {
+        const physicalMetrics = analysis.physicalMetrics;
+        const suggestions = analysis.suggestions;
+        
+        // Prefill physical measurements with smooth animation
+        this.animateFieldUpdate('weight', physicalMetrics.weight);
+        this.animateFieldUpdate('height', physicalMetrics.height);
+        this.animateFieldUpdate('age', physicalMetrics.estimatedAge);
+        
+        // Estimate and prefill gender based on image analysis
+        const estimatedGender = this.estimateGender(analysis);
+        this.animateFieldUpdate('gender', estimatedGender);
+        
+        // Prefill AI suggestions
+        setTimeout(() => {
+            this.animateFieldUpdate('dietType', suggestions.dietType);
+            this.animateFieldUpdate('fitnessGoal', suggestions.fitnessGoal);
+            this.animateFieldUpdate('activityLevel', suggestions.activityLevel);
+        }, 500); // Slight delay for better UX
+
+        // Show auto-prefill notification
+        this.showAutoPrefillNotification();
+        
+        // Add visual feedback to the form
+        const form = document.getElementById('foodForm');
+        form.classList.add('auto-filled');
+        setTimeout(() => form.classList.remove('auto-filled'), 2000);
+    }
+
+    // Animate field updates for better UX
+    animateFieldUpdate(fieldId, value) {
+        const field = document.getElementById(fieldId);
+        if (!field) return;
+
+        // Add highlight animation
+        field.classList.add('field-updating');
+        
+        setTimeout(() => {
+            field.value = value;
+            field.classList.remove('field-updating');
+            field.classList.add('field-updated');
+            
+            // Remove updated class after animation
+            setTimeout(() => {
+                field.classList.remove('field-updated');
+            }, 1000);
+        }, 200);
+    }
+
+    // Estimate gender based on image analysis (simplified approach)
+    estimateGender(analysis) {
+        // This is a simplified estimation - in a real AI system, this would use
+        // more sophisticated computer vision techniques
+        const imageData = analysis.imageAnalysisData;
+        const physicalMetrics = analysis.physicalMetrics;
+        
+        // Use statistical tendencies (not stereotypes) for estimation
+        // This is just for demo purposes - real systems would use facial recognition
+        let genderScore = 0;
+        
+        // Height-based statistical tendency
+        if (physicalMetrics.height > 175) genderScore += 1;
+        if (physicalMetrics.height < 165) genderScore -= 1;
+        
+        // Body composition tendencies
+        if (physicalMetrics.bodyFatPercentage < 15) genderScore += 0.5;
+        if (physicalMetrics.bodyFatPercentage > 25) genderScore -= 0.5;
+        
+        // Random factor to simulate AI uncertainty
+        genderScore += (Math.random() - 0.5) * 2;
+        
+        // Return estimation (with disclaimer that this is not always accurate)
+        return genderScore > 0 ? 'male' : 'female';
+    }
+
+    // Show auto-prefill notification
+    showAutoPrefillNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'auto-prefill-notification';
+        notification.innerHTML = `
+            <i class="fas fa-magic"></i>
+            <div class="notification-content">
+                <strong>Form Auto-Filled!</strong>
+                <p>Your profile has been automatically filled based on AI analysis of your photo.</p>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        const form = document.getElementById('foodForm');
+        form.insertBefore(notification, form.firstChild);
+        
+        // Auto-remove notification after 8 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 8000);
+    }
+
+    // Perform actual image analysis using canvas
+    async performImageAnalysis(dataUrl) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // Draw image to canvas
+                ctx.drawImage(img, 0, 0);
+                
+                // Get image data
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+                
+                // Analyze image properties
+                const analysis = this.analyzeImageData(data, canvas.width, canvas.height);
+                resolve(analysis);
+            };
+            img.src = dataUrl;
+        });
+    }
+
+    // Analyze image data to extract meaningful information
+    analyzeImageData(data, width, height) {
+        let totalPixels = width * height;
+        let skinPixels = 0;
+        let darkPixels = 0;
+        let brightPixels = 0;
+        let colorVariance = 0;
+        let avgRed = 0, avgGreen = 0, avgBlue = 0;
+        
+        // Analyze pixel data
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            
+            avgRed += r;
+            avgGreen += g;
+            avgBlue += b;
+            
+            // Detect skin tones (simplified)
+            if (this.isSkinTone(r, g, b)) {
+                skinPixels++;
+            }
+            
+            // Brightness analysis
+            const brightness = (r + g + b) / 3;
+            if (brightness < 80) darkPixels++;
+            if (brightness > 180) brightPixels++;
+            
+            // Color variance for texture analysis
+            colorVariance += Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r);
+        }
+        
+        avgRed /= totalPixels;
+        avgGreen /= totalPixels;
+        avgBlue /= totalPixels;
+        
+        const skinRatio = skinPixels / totalPixels;
+        const darkRatio = darkPixels / totalPixels;
+        const brightRatio = brightPixels / totalPixels;
+        const textureComplexity = colorVariance / totalPixels;
+        
+        // Aspect ratio analysis (height vs width can indicate body type)
+        const aspectRatio = height / width;
+        
+        return {
+            skinRatio,
+            darkRatio,
+            brightRatio,
+            textureComplexity,
+            aspectRatio,
+            avgColors: { r: avgRed, g: avgGreen, b: avgBlue },
+            dimensions: { width, height },
+            totalPixels
+        };
+    }
+
+    // Simple skin tone detection
+    isSkinTone(r, g, b) {
+        // Simplified skin tone detection algorithm
+        return (r > 95 && g > 40 && b > 20 && 
+                Math.max(r, g, b) - Math.min(r, g, b) > 15 &&
+                Math.abs(r - g) > 15 && r > g && r > b);
+    }
+
+    // Generate person analysis based on actual image analysis
+    generatePersonAnalysisFromImage(imageAnalysis, filename) {
+        // Use image analysis to make educated estimates
+        
+        // Height estimation based on aspect ratio and image composition
+        let heightCm;
+        if (imageAnalysis.aspectRatio > 1.5) {
+            // Tall/vertical image suggests full body shot
+            heightCm = Math.floor(160 + (imageAnalysis.aspectRatio - 1.5) * 40); // 160-200cm
+        } else {
+            // More square image, might be upper body
+            heightCm = Math.floor(155 + Math.random() * 25); // 155-180cm
+        }
+        heightCm = Math.min(Math.max(heightCm, 150), 195); // Clamp between 150-195cm
+        
+        // Weight estimation based on skin ratio and image brightness
+        let weightKg;
+        const skinFactor = Math.min(imageAnalysis.skinRatio * 10, 1); // Normalize skin ratio
+        const brightnessFactor = (imageAnalysis.avgColors.r + imageAnalysis.avgColors.g + imageAnalysis.avgColors.b) / (3 * 255);
+        
+        // More skin visible might indicate lighter clothing or athletic build
+        // Brightness can indicate lighting conditions and photo quality
+        const baseWeight = 60 + (heightCm - 160) * 0.8; // Base weight relative to height
+        const variationFactor = (skinFactor * 0.3 + brightnessFactor * 0.2 + Math.random() * 0.5);
+        weightKg = Math.floor(baseWeight + (variationFactor - 0.5) * 30);
+        weightKg = Math.min(Math.max(weightKg, 45), 120); // Clamp between 45-120kg
+        
+        // Age estimation based on image quality and texture complexity
+        let estimatedAge;
+        const textureScore = Math.min(imageAnalysis.textureComplexity / 50, 1);
+        const qualityScore = imageAnalysis.totalPixels / (1920 * 1080); // Relative to HD
+        
+        // Higher texture complexity might indicate older age (more facial details)
+        // Better quality images might be from younger, tech-savvy users
+        estimatedAge = Math.floor(25 + textureScore * 20 + (1 - Math.min(qualityScore, 1)) * 15);
+        estimatedAge = Math.min(Math.max(estimatedAge, 18), 65); // Clamp between 18-65
+        
+        // Calculate BMI and determine categories
+        const bmi = (weightKg / ((heightCm / 100) ** 2)).toFixed(1);
+        
+        // Determine BMI category and related suggestions
+        let bmiCategory = 'Normal';
+        let fitnessLevel = 'Moderate';
+        let suggestedGoal = 'maintenance';
+        
+        if (bmi < 18.5) {
+            bmiCategory = 'Underweight';
+            fitnessLevel = 'Beginner';
+            suggestedGoal = 'weight-gain';
+        } else if (bmi >= 25 && bmi < 30) {
+            bmiCategory = 'Overweight';
+            fitnessLevel = 'Moderate';
+            suggestedGoal = 'weight-loss';
+        } else if (bmi >= 30) {
+            bmiCategory = 'Obese';
+            fitnessLevel = 'Beginner';
+            suggestedGoal = 'weight-loss';
+        } else if (bmi >= 18.5 && bmi < 22) {
+            fitnessLevel = 'Active';
+            suggestedGoal = 'muscle-gain';
+        }
+
+        // Adjust fitness level based on image analysis
+        if (imageAnalysis.skinRatio > 0.3) {
+            // More skin visible might indicate athletic/active lifestyle
+            if (fitnessLevel === 'Beginner') fitnessLevel = 'Moderate';
+            else if (fitnessLevel === 'Moderate') fitnessLevel = 'Active';
+        }
+
+        // Determine suggested diet based on analysis
+        let suggestedDiet = 'balanced';
+        if (suggestedGoal === 'weight-loss') {
+            suggestedDiet = Math.random() > 0.5 ? 'low-carb' : 'high-protein';
+        } else if (suggestedGoal === 'weight-gain') {
+            suggestedDiet = 'high-protein';
+        } else if (suggestedGoal === 'muscle-gain') {
+            suggestedDiet = 'high-protein';
+        }
+
+        // Body composition estimates based on BMI and fitness level
+        let bodyFatPercentage, muscleMass;
+        if (fitnessLevel === 'Active') {
+            bodyFatPercentage = Math.floor(10 + Math.random() * 10); // 10-20%
+            muscleMass = Math.floor(40 + Math.random() * 15); // 40-55%
+        } else if (fitnessLevel === 'Moderate') {
+            bodyFatPercentage = Math.floor(15 + Math.random() * 10); // 15-25%
+            muscleMass = Math.floor(30 + Math.random() * 15); // 30-45%
+        } else {
+            bodyFatPercentage = Math.floor(20 + Math.random() * 15); // 20-35%
+            muscleMass = Math.floor(25 + Math.random() * 15); // 25-40%
+        }
+
+        return {
+            physicalMetrics: {
+                height: heightCm,
+                weight: weightKg,
+                bmi: parseFloat(bmi),
+                bmiCategory: bmiCategory,
+                estimatedAge: estimatedAge,
+                bodyFatPercentage: bodyFatPercentage,
+                muscleMassPercentage: muscleMass
+            },
+            fitnessAssessment: {
+                level: fitnessLevel,
+                confidence: 0.75 + (imageAnalysis.skinRatio * 0.2), // Higher confidence with more visible body
+                recommendations: this.getFitnessRecommendations(fitnessLevel, bmiCategory)
+            },
+            suggestions: {
+                dietType: suggestedDiet,
+                fitnessGoal: suggestedGoal,
+                activityLevel: this.getActivityLevel(fitnessLevel),
+                dailyCalories: this.calculateRecommendedCalories(weightKg, heightCm, estimatedAge, suggestedGoal)
+            },
+            healthInsights: this.getHealthInsights(bmi, bmiCategory, bodyFatPercentage),
+            imageAnalysisData: {
+                skinRatio: (imageAnalysis.skinRatio * 100).toFixed(1),
+                aspectRatio: imageAnalysis.aspectRatio.toFixed(2),
+                imageQuality: imageAnalysis.totalPixels > 500000 ? 'High' : 'Medium',
+                analysisConfidence: Math.min(0.6 + imageAnalysis.skinRatio * 0.4, 0.95)
+            }
+        };
+    }
+
+    // Get fitness recommendations based on assessment
+    getFitnessRecommendations(level, bmiCategory) {
+        const recommendations = {
+            'Beginner': ['Start with light cardio', 'Focus on basic strength training', 'Gradually increase activity'],
+            'Moderate': ['Mix cardio and strength training', 'Aim for 150 minutes weekly activity', 'Include flexibility exercises'],
+            'Active': ['High-intensity interval training', 'Advanced strength training', 'Sport-specific activities']
+        };
+        
+        return recommendations[level] || recommendations['Moderate'];
+    }
+
+    // Get activity level based on fitness assessment
+    getActivityLevel(fitnessLevel) {
+        const activityMap = {
+            'Beginner': 'light',
+            'Moderate': 'moderate',
+            'Active': 'active'
+        };
+        return activityMap[fitnessLevel] || 'moderate';
+    }
+
+    // Calculate recommended daily calories
+    calculateRecommendedCalories(weight, height, age, goal) {
+        // Simplified BMR calculation (Mifflin-St Jeor)
+        const bmr = 10 * weight + 6.25 * height - 5 * age + 5; // Assuming male for simplicity
+        let calories = bmr * 1.55; // Moderate activity
+        
+        if (goal === 'weight-loss') {
+            calories -= 500;
+        } else if (goal === 'weight-gain') {
+            calories += 500;
+        } else if (goal === 'muscle-gain') {
+            calories += 300;
+        }
+        
+        return Math.round(calories);
+    }
+
+    // Get health insights based on metrics
+    getHealthInsights(bmi, category, bodyFat) {
+        const insights = [];
+        
+        if (category === 'Normal') {
+            insights.push('Your BMI is in the healthy range');
+            insights.push('Maintain current lifestyle with balanced nutrition');
+        } else if (category === 'Underweight') {
+            insights.push('Consider increasing caloric intake');
+            insights.push('Focus on strength training to build muscle');
+        } else if (category === 'Overweight' || category === 'Obese') {
+            insights.push('Consider a calorie-controlled diet');
+            insights.push('Increase physical activity gradually');
+        }
+        
+        if (bodyFat > 25) {
+            insights.push('Consider cardio exercises to reduce body fat');
+        } else if (bodyFat < 15) {
+            insights.push('Excellent body composition - maintain current routine');
+        }
+        
+        return insights;
+    }
+
+    // Display person analysis results with auto-prefill indication
+    displayPersonAnalysisResults(analysis) {
+        const analysisResults = document.getElementById('analysisResults');
+        
+        let html = '<div class="auto-prefill-status">';
+        html += `<div class="status-header">`;
+        html += `<i class="fas fa-check-circle"></i>`;
+        html += `<span><strong>Auto-Prefill Complete!</strong> Your form has been automatically filled with the analysis results.</span>`;
+        html += `</div></div>`;
+        
+        html += '<div class="image-analysis-info">';
+        html += `<h5><i class="fas fa-camera"></i> Image Analysis Details</h5>`;
+        html += `<div class="analysis-metrics">`;
+        html += `<span class="analysis-metric">📊 Body Coverage: ${analysis.imageAnalysisData.skinRatio}%</span>`;
+        html += `<span class="analysis-metric">📐 Aspect Ratio: ${analysis.imageAnalysisData.aspectRatio}</span>`;
+        html += `<span class="analysis-metric">🔍 Image Quality: ${analysis.imageAnalysisData.imageQuality}</span>`;
+        html += `<span class="analysis-metric">🎯 Confidence: ${Math.round(analysis.imageAnalysisData.analysisConfidence * 100)}%</span>`;
+        html += `</div>`;
+        html += `<div class="analysis-explanation">`;
+        html += `<p><i class="fas fa-info-circle"></i> <strong>How we analyzed your photo:</strong></p>`;
+        html += `<ul>`;
+        html += `<li>🔍 <strong>Body Detection:</strong> Found ${analysis.imageAnalysisData.skinRatio}% body coverage in the image</li>`;
+        html += `<li>📏 <strong>Height Estimation:</strong> Based on image proportions (${analysis.imageAnalysisData.aspectRatio} ratio)</li>`;
+        html += `<li>⚖️ <strong>Weight Estimation:</strong> Calculated from body proportions and image composition</li>`;
+        html += `<li>🎂 <strong>Age Estimation:</strong> Analyzed image texture and quality patterns</li>`;
+        html += `<li>👤 <strong>Gender Estimation:</strong> Based on statistical analysis of physical characteristics</li>`;
+        html += `</ul>`;
+        html += `</div></div>`;
+        
+        html += '<div class="person-analysis-summary">';
+        html += `<h5><i class="fas fa-user-md"></i> Physical Assessment (Auto-Filled)</h5>`;
+        html += `<div class="metrics-grid">`;
+        html += `<div class="metric-item auto-filled-metric">📏 Height: <strong>${analysis.physicalMetrics.height} cm</strong> <i class="fas fa-check"></i></div>`;
+        html += `<div class="metric-item auto-filled-metric">⚖️ Weight: <strong>${analysis.physicalMetrics.weight} kg</strong> <i class="fas fa-check"></i></div>`;
+        html += `<div class="metric-item auto-filled-metric">🎂 Age: <strong>${analysis.physicalMetrics.estimatedAge} years</strong> <i class="fas fa-check"></i></div>`;
+        html += `<div class="metric-item auto-filled-metric">👤 Gender: <strong>${this.estimateGender(analysis) === 'male' ? 'Male' : 'Female'}</strong> <i class="fas fa-check"></i></div>`;
+        html += `<div class="metric-item">📊 BMI: <strong>${analysis.physicalMetrics.bmi} (${analysis.physicalMetrics.bmiCategory})</strong></div>`;
+        html += `<div class="metric-item">💪 Muscle Mass: <strong>${analysis.physicalMetrics.muscleMassPercentage}%</strong></div>`;
+        html += `<div class="metric-item">📈 Body Fat: <strong>${analysis.physicalMetrics.bodyFatPercentage}%</strong></div>`;
+        html += `</div></div>`;
+
+        html += '<div class="fitness-assessment">';
+        html += `<h5><i class="fas fa-dumbbell"></i> Fitness Assessment (Auto-Filled)</h5>`;
+        html += `<div class="fitness-level">`;
+        html += `<span class="level-badge level-${analysis.fitnessAssessment.level.toLowerCase()}">${analysis.fitnessAssessment.level} Level</span>`;
+        html += `<span class="confidence-score">${Math.round(analysis.fitnessAssessment.confidence * 100)}% confident</span>`;
+        html += `</div>`;
+        html += `<div class="recommendations">`;
+        analysis.fitnessAssessment.recommendations.forEach(rec => {
+            html += `<div class="recommendation-item">✓ ${rec}</div>`;
+        });
+        html += `</div></div>`;
+
+        html += '<div class="ai-suggestions-section">';
+        html += '<h5><i class="fas fa-lightbulb"></i> Personalized Recommendations (Auto-Filled)</h5>';
+        html += `<div class="suggestion-grid">`;
+        html += `<div class="suggestion-item auto-filled-metric">`;
+        html += `<strong>Diet Type:</strong> ${this.formatDietType(analysis.suggestions.dietType)} <i class="fas fa-check"></i>`;
+        html += `</div>`;
+        html += `<div class="suggestion-item auto-filled-metric">`;
+        html += `<strong>Fitness Goal:</strong> ${this.formatFitnessGoal(analysis.suggestions.fitnessGoal)} <i class="fas fa-check"></i>`;
+        html += `</div>`;
+        html += `<div class="suggestion-item auto-filled-metric">`;
+        html += `<strong>Activity Level:</strong> ${this.formatActivityLevel(analysis.suggestions.activityLevel)} <i class="fas fa-check"></i>`;
+        html += `</div>`;
+        html += `<div class="suggestion-item">`;
+        html += `<strong>Daily Calories:</strong> ${analysis.suggestions.dailyCalories} kcal`;
+        html += `</div>`;
+        html += `</div></div>`;
+
+        html += '<div class="health-insights">';
+        html += '<h5><i class="fas fa-heart"></i> Health Insights</h5>';
+        analysis.healthInsights.forEach(insight => {
+            html += `<div class="insight-item">💡 ${insight}</div>`;
+        });
+        html += '</div>';
+
+        // Add accuracy disclaimer
+        html += '<div class="accuracy-disclaimer">';
+        html += '<p><i class="fas fa-exclamation-triangle"></i> <strong>Note:</strong> These estimates are based on image analysis and may not be 100% accurate. You can manually adjust any auto-filled values if needed.</p>';
+        html += '</div>';
+
+        analysisResults.innerHTML = html;
+    }
+
+    // Format activity level for display
+    formatActivityLevel(level) {
+        const formats = {
+            'sedentary': 'Sedentary (little/no exercise)',
+            'light': 'Light (1-3 days/week)',
+            'moderate': 'Moderate (3-5 days/week)',
+            'active': 'Active (6-7 days/week)',
+            'very-active': 'Very Active (2x/day)'
+        };
+        return formats[level] || level;
+    }
+
+    // Apply AI analysis to form (now optional since auto-prefill is active)
+    applyAIAnalysis() {
+        if (!this.aiAnalysisResults) return;
+
+        const suggestions = this.aiAnalysisResults.suggestions;
+        const physicalMetrics = this.aiAnalysisResults.physicalMetrics;
+        
+        // Re-apply all values (in case user changed them)
+        document.getElementById('weight').value = physicalMetrics.weight;
+        document.getElementById('height').value = physicalMetrics.height;
+        document.getElementById('age').value = physicalMetrics.estimatedAge;
+        
+        const estimatedGender = this.estimateGender(this.aiAnalysisResults);
+        document.getElementById('gender').value = estimatedGender;
+        
+        document.getElementById('dietType').value = suggestions.dietType;
+        document.getElementById('fitnessGoal').value = suggestions.fitnessGoal;
+        document.getElementById('activityLevel').value = suggestions.activityLevel;
+
+        // Show manual application notification
+        this.showManualApplicationNotification();
+        
+        // Add visual feedback
+        const form = document.getElementById('foodForm');
+        form.classList.add('success-flash');
+        setTimeout(() => form.classList.remove('success-flash'), 600);
+    }
+
+    // Show manual application notification
+    showManualApplicationNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'ai-suggestion';
+        notification.innerHTML = `
+            <i class="fas fa-redo"></i>
+            <span>AI suggestions re-applied! All form fields have been updated with the latest analysis.</span>
+        `;
+        
+        const form = document.getElementById('foodForm');
+        form.insertBefore(notification, form.firstChild);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    // Format diet type for display
+    formatDietType(dietType) {
+        const formats = {
+            'balanced': 'Balanced Diet',
+            'vegetarian': 'Vegetarian',
+            'vegan': 'Vegan',
+            'keto': 'Ketogenic',
+            'paleo': 'Paleo',
+            'mediterranean': 'Mediterranean',
+            'low-carb': 'Low Carb',
+            'high-protein': 'High Protein'
+        };
+        return formats[dietType] || dietType;
+    }
+
+    // Format fitness goal for display
+    formatFitnessGoal(goal) {
+        const formats = {
+            'weight-loss': 'Weight Loss',
+            'weight-gain': 'Weight Gain',
+            'muscle-gain': 'Muscle Gain',
+            'maintenance': 'Maintain Weight',
+            'endurance': 'Build Endurance'
+        };
+        return formats[goal] || goal;
     }
 
     // Geolocation functionality

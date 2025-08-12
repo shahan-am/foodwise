@@ -4,7 +4,15 @@ FoodWise is an intelligent food recommendation application that provides persona
 
 ## Features
 
-### 🎯 Personalized Recommendations
+### 🤖 AI-Powered Person Analysis
+- **Smart Image Recognition**: Upload photos of yourself for instant body composition analysis
+- **Camera Capture**: Take selfies directly from your device's camera with real-time preview
+- **Automatic Body Detection**: AI identifies height, weight, and body composition from photos
+- **Health Assessment**: Calculates BMI, body fat percentage, and fitness level
+- **Diet Type Suggestions**: Recommends optimal diet types based on your physical analysis
+- **Auto-Fill Forms**: Automatically populates your profile based on AI body analysis
+- **Multi-Format Support**: Accepts images (JPEG, PNG, GIF, WebP)
+- **Camera Controls**: Switch between front/back cameras, optimized for selfie capture
 - **Custom Nutrition Goals**: Calculates daily calorie, protein, carb, and fat requirements based on your profile
 - **Diet Type Support**: Supports various diet types including vegetarian, vegan, keto, paleo, Mediterranean, and more
 - **Fitness Goal Alignment**: Tailors recommendations for weight loss, weight gain, muscle building, or maintenance
@@ -33,16 +41,22 @@ FoodWise is an intelligent food recommendation application that provides persona
 ### 1. Setup
 Simply open `index.html` in your web browser. No installation required!
 
-### 2. Fill Out Your Profile
+### 2. AI Person Analysis (Optional)
+- **Upload Your Photos**: Drag & drop or click to upload full-body photos of yourself
+- **Take Selfies**: Use the "Take Selfie" button to capture photos directly from your camera
+- **AI Analysis**: The system will automatically detect your body composition, estimate height/weight, and assess fitness level
+- **Apply Suggestions**: Click "Apply AI Suggestions" to auto-fill your profile based on the analysis
+
+### 3. Fill Out Your Profile
 - **Personal Information**: Enter your weight, height, age, and gender
 - **Diet & Goals**: Select your diet type, fitness goal, and activity level
 - **Dietary Requirements**: Specify any allergies or intolerances
 - **Budget**: Choose your preferred spending range per meal
 
-### 3. Enable Location (Optional)
+### 4. Enable Location (Optional)
 Click "Get My Location" to enable location-based restaurant recommendations with Google Maps integration.
 
-### 4. Get Recommendations
+### 5. Get Recommendations
 Click "Get Food Recommendations" to receive your personalized nutrition plan, food suggestions, and nearby restaurant recommendations with specific dish recommendations.
 
 ## Technology Stack

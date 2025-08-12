@@ -137,6 +137,136 @@
                         </div>
                     </div>
 
+                    <!-- AI Body Analysis Section -->
+<div class="form-section">
+    <h3><i class="fas fa-user-md"></i> AI Body Analysis & Auto-Fill</h3>
+    
+    <div class="input-group">
+        <label for="bodyImage">Upload Your Photo for Automatic Form Filling</label>
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-content">
+                <i class="fas fa-user-circle"></i>
+                <p>Upload your photo to auto-fill your profile</p>
+                <p class="upload-subtitle">AI will detect your height, weight, age, and gender</p>
+                <div class="upload-options">
+                    <button type="button" class="upload-option-btn" id="browseFiles">
+                        <i class="fas fa-folder-open"></i>
+                        Browse Photos
+                    </button>
+                    <button type="button" class="upload-option-btn" id="captureCamera">
+                        <i class="fas fa-camera"></i>
+                        Take Photo
+                    </button>
+                </div>
+                <input type="file" id="bodyImage" name="bodyImage" accept="image/*" hidden>
+                <input type="file" id="cameraCapture" name="cameraCapture" accept="image/*" capture="user" hidden>
+            </div>
+            <div class="upload-preview" id="uploadPreview" style="display: none;">
+                <img id="previewImage" style="display: none;">
+                <div class="preview-overlay">
+                    <button type="button" class="preview-action-btn" id="retakePhoto" style="display: none;">
+                        <i class="fas fa-redo"></i>
+                        Retake
+                    </button>
+                    <button type="button" class="remove-btn" id="removeUpload">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Camera Modal -->
+        <div class="camera-modal" id="cameraModal" style="display: none;">
+            <div class="camera-modal-content">
+                <div class="camera-header">
+                    <h4><i class="fas fa-camera"></i> Capture for Body Analysis</h4>
+                    <button type="button" class="close-camera" id="closeCameraModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="camera-container">
+                    <video id="cameraStream" autoplay playsinline></video>
+                    <canvas id="captureCanvas" style="display: none;"></canvas>
+                    <div class="camera-overlay">
+                        <div class="camera-guide">
+                            <div class="body-guide-frame"></div>
+                            <p>Position yourself in the frame</p>
+                            <p class="guide-tip">Full body or upper body shots work best</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="camera-controls">
+                    <button type="button" class="camera-control-btn" id="switchCamera">
+                        <i class="fas fa-sync-alt"></i>
+                        Switch Camera
+                    </button>
+                    <button type="button" class="capture-btn" id="capturePhoto">
+                        <i class="fas fa-camera"></i>
+                        Capture Photo
+                    </button>
+                    <button type="button" class="camera-control-btn" id="cancelCapture">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-analysis" id="aiAnalysis" style="display: none;">
+            <div class="analysis-header">
+                <i class="fas fa-brain"></i>
+                <span>AI Body Analysis Results</span>
+                <div class="loading-spinner" id="analysisSpinner" style="display: none;"></div>
+            </div>
+            <div class="analysis-results" id="analysisResults"></div>
+            <div class="auto-fill-status" id="autoFillStatus" style="display: none;">
+                <div class="status-message">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Form automatically filled based on AI analysis!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ai-features">
+        <h4><i class="fas fa-robot"></i> What AI Will Auto-Fill:</h4>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fas fa-ruler-vertical"></i>
+                <span>Height Detection</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-weight"></i>
+                <span>Weight Estimation</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-birthday-cake"></i>
+                <span>Age Estimation</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-venus-mars"></i>
+                <span>Gender Detection</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-dumbbell"></i>
+                <span>Body Type Analysis</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-heartbeat"></i>
+                <span>Fitness Level</span>
+            </div>
+        </div>
+        
+        <!-- Debug button for testing -->
+        <div style="margin-top: 15px; text-align: center;">
+            <button type="button" id="testAutoFillBtn" class="upload-option-btn" style="background: #dc3545;">
+                <i class="fas fa-bug"></i>
+                Test Auto-Fill (Debug)
+            </button>
+        </div>
+    </div>
+</div>
+
                     <!-- Location Section -->
                     <div class="form-section">
                         <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
